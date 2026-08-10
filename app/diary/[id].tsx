@@ -1,6 +1,13 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useDb } from "@/db/provider";
 import { isOpenable, openInstant } from "@/domain/capsuleRules";
@@ -10,6 +17,7 @@ import {
   getCapsuleForDiary,
   markOpened,
 } from "@/repositories/capsuleRepository";
+import { deleteDiaryFlow } from "@/repositories/deleteDiaryFlow";
 import { getDiary } from "@/repositories/diaryRepository";
 import { NotebookPage } from "@/ui/NotebookPage";
 import { theme } from "@/ui/theme";
@@ -25,6 +33,10 @@ import { theme } from "@/ui/theme";
  *   "고치기" 진입점 (Requirement 8 — 일반·개봉된 일기만 수정 가능,
  *   봉인 중에는 수정 진입점 자체가 없다). 수정 후 돌아오면
  *   useFocusEffect가 다시 읽어 고친 내용이 바로 보인다.
+ * - 지우기: 일기가 있는 모든 상태에서 가능 — 봉인 중에도 (Requirement 8,
+ *   통제권은 쓰는 사람에게). 조용한 진입점 + 부드러운 확인 한 번. 봉인
+ *   일기도 같은 확인 문구를 쓴다 — 내용은 어떤 경로로도 드러내지 않는다.
+ *   실패하면 일기는 그대로 남고 다시 시도만 부탁한다.
  * 일기를 찾지 못하면 조용하고 다정한 빈 화면만 — 에러 코드 없음.
  */
 export default function DiaryDetail() {
@@ -65,6 +77,37 @@ export default function DiaryDetail() {
     setCapsule(reloaded);
   }, [db, capsule]);
 
+  const confirmDelete = useCallback(() => {
+    if (diary === null) {
+      return;
+    }
+    const diaryId = diary.id;
+    Alert.alert("이 이야기를 지울까요?", "지운 이야기는 다시 볼 수 없어요.", [
+      { text: "그대로 두기", style: "cancel" },
+      {
+        text: "지우기",
+        style: "destructive",
+        onPress: () => {
+          void (async () => {
+            const deleted = await deleteDiaryFlow(
+              db,
+              diaryId,
+              new Date().toISOString(),
+            );
+            if (deleted) {
+              router.back();
+            } else {
+              Alert.alert(
+                "아직 지우지 못했어요",
+                "잠시 후 다시 한번 눌러 주세요.",
+              );
+            }
+          })();
+        },
+      },
+    ]);
+  }, [db, diary, router]);
+
   if (!loaded) {
     return <View style={styles.screen} />;
   }
@@ -90,6 +133,14 @@ export default function DiaryDetail() {
               openInstant(capsule.openDate).toISOString(),
             )}에 다시 만나요`}
           </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="지우기"
+            onPress={confirmDelete}
+            style={styles.deleteButton}
+          >
+            <Text style={styles.deleteButtonText}>지우기</Text>
+          </Pressable>
         </View>
       );
     }
@@ -102,6 +153,14 @@ export default function DiaryDetail() {
           style={styles.openButton}
         >
           <Text style={styles.openButtonText}>열어보기</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="지우기"
+          onPress={confirmDelete}
+          style={styles.deleteButton}
+        >
+          <Text style={styles.deleteButtonText}>지우기</Text>
         </Pressable>
       </View>
     );
@@ -118,16 +177,29 @@ export default function DiaryDetail() {
       <View style={styles.content}>
         <View style={styles.metaRow}>
           <Text style={styles.date}>{formatKoreanDate(diary.createdAt)}</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="고치기"
-            onPress={() =>
-              router.push({ pathname: "/edit/[id]", params: { id: diary.id } })
-            }
-            style={styles.editButton}
-          >
-            <Text style={styles.editButtonText}>고치기</Text>
-          </Pressable>
+          <View style={styles.actionRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="지우기"
+              onPress={confirmDelete}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteButtonText}>지우기</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="고치기"
+              onPress={() =>
+                router.push({
+                  pathname: "/edit/[id]",
+                  params: { id: diary.id },
+                })
+              }
+              style={styles.editButton}
+            >
+              <Text style={styles.editButtonText}>고치기</Text>
+            </Pressable>
+          </View>
         </View>
         <NotebookPage
           design={style.notebookDesign}
@@ -186,6 +258,10 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.small,
     color: theme.colors.subtle,
   },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   editButton: {
     minHeight: theme.touchTarget,
     minWidth: theme.touchTarget,
@@ -196,6 +272,18 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: theme.fontSize.small,
     color: theme.colors.accent,
+  },
+  // Deletion is deliberately quiet — subtle ink, never the accent color.
+  deleteButton: {
+    minHeight: theme.touchTarget,
+    minWidth: theme.touchTarget,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  deleteButtonText: {
+    fontSize: theme.fontSize.small,
+    color: theme.colors.subtle,
   },
   page: {
     flexGrow: 1,

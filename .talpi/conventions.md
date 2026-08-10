@@ -2,6 +2,7 @@
 
 ## Prior work this phase (Phase 4)
 
+- step 2: `deleteDiaryFlow` 헬퍼(+테스트 4개) + 열람 화면 전 상태에 조용한 "지우기"(봉인 중 포함, 내용 미노출 확인 다이얼로그)
 - step 1: `app/edit/[id].tsx`(StylePicker·NotebookPage 재사용, 봉인 일기는 수정 경로에서도 내용 미노출 가드) + 열람 화면 "고치기" 버튼(일반 상태만) + `_layout.tsx` 라우트 등록
 
 ## Design Tokens
@@ -38,6 +39,7 @@
 - `formatKoreanDate(iso)` (dates.ts) — 표시용 한국어 날짜는 반드시 이것으로
 - `theme.colors.notebookLine` — 속지 줄 색 토큰
 - `src/repositories/capsuleRepository.ts` — capsules 접근은 반드시 이 레포지토리 경유. 시각/id 주입
+- `src/repositories/deleteDiaryFlow.ts` — `deleteDiaryFlow(db, diaryId, now) → boolean`. 삭제는 반드시 이 흐름 경유(알림 취소→캡슐→일기 + 부분 실패 규칙). `false` = 일기 원상 유지, UI는 재시도 안내
 - `src/notifications/capsuleNotifications.ts` — expo-notifications 유일 import 지점 (B3). `scheduleCapsuleNotification(diaryId, openDate) → id|null` / `cancelCapsuleNotification(id|null)`. 화면·레포지토리는 expo-notifications 직접 import 금지
 
 ## Layout & Naming
