@@ -8,3 +8,4 @@
 - [2026-08-10] phase 1 verified
 - [2026-08-10] phase 1 reported (escalation: android.package 확정 필요 — Phase 3 전까지)
 - [2026-08-10] phase 2 started (base: 5d5da35)
+- [2026-08-10] phase 2 contracts pinned
