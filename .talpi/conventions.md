@@ -4,7 +4,8 @@
 
 - step 1: Expo SDK 57 스캐폴드 (routes `app/`, jest-expo+better-sqlite3 인프라, tsconfig strict+jest types, `expo.android.allowBackup:false` — SDK 57은 build-properties가 아니라 app.json 필드) — `src/__tests__/smoke.test.ts`
 - ⚠️ 미해결(phase 1 내 처리 예정): `dataExtractionRules`는 expo config 미지원 — withAndroidManifest 커스텀 config plugin 필요 (B1)
-- step 6: `src/ui/StylePicker.tsx`(+테스트 4개) + `app/write.tsx` 실화면(빈 본문 조용한 비활성, 저장 실패 문구, questionId/questionText 파라미터 수용). ⚠️ 속지(줄노트/모눈) 시각 렌더는 미구현 — step 7에서 공용 처리 필요
+- step 7: `NotebookPage`/`DiaryCard`(+테스트 11개) + `app/list.tsx`·`app/diary/[id].tsx` 실화면 + write에 속지 렌더 연결 + 홈에 목록/설정 링크. 속지 갭 해소됨
+- step 6: `src/ui/StylePicker.tsx`(+테스트 4개) + `app/write.tsx` 실화면(빈 본문 조용한 비활성, 저장 실패 문구, questionId/questionText 파라미터 수용)
 - step 5: `src/ui/theme.ts` + `src/db/provider.tsx` + 앱 셸(`app/_layout.tsx` 테마 Stack, index/write/list/diary/[id]/settings 라우트 플레이스홀더). DB 실패 시 조용한 로딩 뷰(유일한 치명 실패)
 - step 4: `src/repositories/settingsRepository.ts`(+테스트 11개) + `src/domain/questionEngine.ts` 스텁(QuestionState+initialQuestionState만 — Phase 2 로직은 이걸 재사용)
 - step 3: `src/domain/types.ts` + `src/repositories/diaryRepository.ts`(+테스트 9개). updateDiary는 title에 null 허용(제목 지우기), softDelete는 updated_at도 갱신(동기화 대비), 빈 본문 검증은 쓰기 화면 책임
@@ -39,7 +40,11 @@
 - import 규칙: `app/` 파일은 `@/*` 별칭(→`src/*`), `src/` 내부는 상대 경로
 - `src/ui/StylePicker.tsx` — 꾸미기 선택 UI. 수정 화면(Req 8)에서 재사용할 것
 - `DIARY_FONT_SIZES`(18/20/24)는 theme.ts에 — 글자 크기 리터럴 금지
-- 테스트 주의: @testing-library/react-native v14는 render/fireEvent가 async — 반드시 await
+- 테스트 주의: @testing-library/react-native v14는 render/fireEvent가 async — 반드시 await. layout 이벤트는 수동 fire 필요
+- `src/ui/NotebookPage.tsx` — 속지 시각 렌더는 반드시 이 컴포넌트 경유. `lineSpacing`에 본문 lineHeight(1.6×fontSize) 전달
+- `src/ui/DiaryCard.tsx` — 목록 카드 (봉인 표시 확장은 Phase 3 스텝에서)
+- `formatKoreanDate(iso)` (dates.ts) — 표시용 한국어 날짜는 반드시 이것으로
+- `theme.colors.notebookLine` — 속지 줄 색 토큰
 
 ## Layout & Naming
 

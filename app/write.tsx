@@ -15,6 +15,7 @@ import { newId, useDb } from "@/db/provider";
 import type { DiaryStyle } from "@/domain/types";
 import { createDiary } from "@/repositories/diaryRepository";
 import { getLastStyle, saveLastStyle } from "@/repositories/settingsRepository";
+import { NotebookPage } from "@/ui/NotebookPage";
 import { StylePicker } from "@/ui/StylePicker";
 import { theme } from "@/ui/theme";
 
@@ -24,10 +25,10 @@ import { theme } from "@/ui/theme";
  * 버튼이 비활성 상태로 있을 뿐 어떤 에러도 띄우지 않는다.
  * 마지막 꾸미기(last_style)가 기본값이며 저장이 완료된 때에만 갱신된다.
  *
- * 속지(무지/줄노트/모눈)는 선택·저장은 되지만 v1 쓰기 화면의 입력창
- * 렌더링은 세 속지 모두 동일한 무지 표현이다(단순한 접근 — 시각 효과는
- * 이후 다듬는다). questionId/questionText 파라미터는 Phase 2의 질문
- * 카드가 넘겨준다 — 지금은 있으면 표시·연결만 한다.
+ * 선택한 속지(무지/줄노트/모눈)는 NotebookPage가 입력창 배경에 그대로
+ * 보여 준다 — 종이 일기장처럼 쓰는 동안에도 꾸미기가 눈에 들어온다.
+ * questionId/questionText 파라미터는 Phase 2의 질문 카드가 넘겨준다 —
+ * 지금은 있으면 표시·연결만 한다.
  */
 export default function Write() {
   const db = useDb();
@@ -66,6 +67,7 @@ export default function Write() {
   }
 
   const canSave = content.trim().length > 0 && !saving;
+  const contentLineHeight = Math.round(style.fontSize * 1.6);
 
   const handleSave = async () => {
     if (!canSave) {
@@ -119,22 +121,29 @@ export default function Write() {
             maxLength={100}
           />
 
-          <TextInput
-            style={[
-              styles.contentInput,
-              {
-                backgroundColor: style.backgroundColor,
-                fontSize: style.fontSize,
-                color: style.fontColor,
-              },
-            ]}
-            value={content}
-            onChangeText={setContent}
-            placeholder="마음 가는 대로 적어 보세요"
-            placeholderTextColor={theme.colors.subtle}
-            multiline
-            textAlignVertical="top"
-          />
+          <NotebookPage
+            design={style.notebookDesign}
+            backgroundColor={style.backgroundColor}
+            lineSpacing={contentLineHeight}
+            style={styles.contentPage}
+          >
+            <TextInput
+              style={[
+                styles.contentInput,
+                {
+                  fontSize: style.fontSize,
+                  lineHeight: contentLineHeight,
+                  color: style.fontColor,
+                },
+              ]}
+              value={content}
+              onChangeText={setContent}
+              placeholder="마음 가는 대로 적어 보세요"
+              placeholderTextColor={theme.colors.subtle}
+              multiline
+              textAlignVertical="top"
+            />
+          </NotebookPage>
 
           <StylePicker style={style} onChange={setStyle} />
 
@@ -194,12 +203,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  contentPage: {
+    borderRadius: 12,
+  },
   contentInput: {
     minHeight: 240,
-    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    lineHeight: 32,
+    backgroundColor: "transparent",
   },
   saveFailedText: {
     fontSize: theme.fontSize.small,

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { theme } from "@/ui/theme";
 
-/** 홈 플레이스홀더 — 진짜 홈 UI는 이후 스텝에서. /write 이동만 보장한다. */
+/** 홈 플레이스홀더 — 진짜 홈 UI는 이후 스텝에서. /write·/list·/settings 이동만 보장한다. */
 export default function Index() {
   return (
     <View style={styles.container}>
@@ -12,6 +12,16 @@ export default function Index() {
         <Link href="/write" asChild>
           <Pressable style={styles.writeButton}>
             <Text style={styles.writeButtonLabel}>오늘을 써 볼까요?</Text>
+          </Pressable>
+        </Link>
+        <Link href="/list" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonLabel}>지난 여정</Text>
+          </Pressable>
+        </Link>
+        <Link href="/settings" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonLabel}>설정</Text>
           </Pressable>
         </Link>
       </View>
@@ -49,5 +59,20 @@ const styles = StyleSheet.create({
   writeButtonLabel: {
     fontSize: theme.fontSize.body,
     color: theme.colors.card,
+  },
+  secondaryButton: {
+    minHeight: theme.touchTarget,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: theme.colors.subtle,
+    backgroundColor: theme.colors.card,
+  },
+  secondaryButtonLabel: {
+    fontSize: theme.fontSize.body,
+    color: theme.colors.ink,
   },
 });

@@ -9,6 +9,8 @@ export const theme = {
     accent: "#C08A5D",
     subtle: "#8A8578",
     card: "#FFFFFF",
+    /** 속지(줄노트/모눈) 괘선 — 본문보다 절대 크게 들리지 않는 옅은 톤. */
+    notebookLine: "#0000000D",
   },
   fontSize: {
     body: 20,

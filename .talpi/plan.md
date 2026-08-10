@@ -13,7 +13,7 @@ Contracts: B1, B2
 - [x] settingsRepository — `question_mode`·`question_state`·`last_style` 라운드트립, 기본값 규칙
 - [x] DbProvider + 테마 토큰(conventions.md) + 앱 셸(expo-router `_layout`, 화면 라우트)
 - [x] 쓰기 화면 + StylePicker — 속지 3종·글자 크기 3종·배경 4종, 빈 본문(공백만 포함) 거부, 저장 완료 시에만 `last_style` 갱신, 첫 일기는 기본 스타일
-- [ ] 목록 + 열람 화면 — 저장된 스타일 그대로 렌더, 태블릿 maxWidth 720
+- [x] 목록 + 열람 화면 — 저장된 스타일 그대로 렌더, 태블릿 maxWidth 720
 
 ## Phase 2: 오늘의 질문과 여정
 

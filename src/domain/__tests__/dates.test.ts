@@ -1,4 +1,4 @@
-import { localDateString } from "../dates";
+import { formatKoreanDate, localDateString } from "../dates";
 
 describe("localDateString", () => {
   it("formats a local date as YYYY-MM-DD", () => {
@@ -18,5 +18,17 @@ describe("localDateString", () => {
     expect(localDateString(new Date(2025, 11, 31, 23, 59, 59))).toBe(
       "2025-12-31"
     );
+  });
+});
+
+describe("formatKoreanDate", () => {
+  it("formats an ISO instant as YYYY년 M월 D일 in local time", () => {
+    const iso = new Date(2026, 7, 10, 12, 0).toISOString();
+    expect(formatKoreanDate(iso)).toBe("2026년 8월 10일");
+  });
+
+  it("does not zero-pad month and day", () => {
+    const iso = new Date(2026, 2, 5, 12, 0).toISOString();
+    expect(formatKoreanDate(iso)).toBe("2026년 3월 5일");
   });
 });
