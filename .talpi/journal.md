@@ -13,3 +13,4 @@
 - [2026-08-10] phase 2 reported
 - [2026-08-10] phase 3 started (base: bd6ff7c)
 - [2026-08-10] phase 3 contracts pinned
+- [2026-08-10] android.package decided: com.ardenspace.yourjourney (Arden, Telegram)
