@@ -54,4 +54,4 @@ Contracts:
 Contracts:
 
 - [x] iOS 백업 제외 — SQLite DB 파일·디렉터리를 iCloud/기기 백업에서 제외 (B1의 iOS 확장 절 적합성; 검증 가능한 방식으로 구현 + 검증 방법 문서화)
-- [ ] iOS 설정 + 전체 QA — app.json에 ios.bundleIdentifier `com.ardenspace.yourjourney` 및 필요한 infoPlist 항목, iOS 시뮬레이터에서 전 화면 QA(쓰기·꾸미기·질문·봉인 캘린더·개봉·수정·삭제·알림 권한 흐름) 후 발견 문제 수정
+- [x] iOS 설정 + 전체 QA — app.json에 ios.bundleIdentifier `com.ardenspace.yourjourney` 및 필요한 infoPlist 항목, iOS 시뮬레이터에서 전 화면 QA(쓰기·꾸미기·질문·봉인 캘린더·개봉·수정·삭제·알림 권한 흐름) 후 발견 문제 수정

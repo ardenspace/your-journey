@@ -2,6 +2,7 @@
 
 ## Prior work this phase (Phase 5)
 
+- step 2: app.json ios.supportsTablet 추가 + iOS 전체 QA (수정/삭제/봉인 삭제/설정 토글/코어 경로 — 전부 VERIFIED, 제품 버그 0, 스크린샷 scratchpad/ios-qa/, Maestro 플로우 재사용 가능: scratchpad/ios-qa/flows/)
 - step 1: `plugins/withIosNoBackup.js`(+테스트 4개, `plugins/__tests__/`) — AppDelegate에 NSURLIsExcludedFromBackupKey 주입(<Documents>/SQLite, RN 시작 전, 매 런치). expo-file-system/sqlite엔 JS API 없음 확인. app.json에 플러그인 + ios.bundleIdentifier 등록됨. 156 tests green
 
 ## Design Tokens

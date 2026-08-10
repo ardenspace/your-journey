@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.ardenspace.yourjourney"
+      "bundleIdentifier": "com.ardenspace.yourjourney",
+      "supportsTablet": true
     },
     "android": {
       "allowBackup": false,
