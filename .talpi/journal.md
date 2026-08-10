@@ -26,3 +26,6 @@
 - [2026-08-10] scope amended: iOS support added to v1 (Arden, Telegram) — spec Ledger updated, Phase 5 appended
 - [2026-08-10] phase 5 started (base: f4be01d)
 - [2026-08-10] phase 5 contracts: none (B1 iOS 확장은 적합성 검증)
+- [2026-08-10] phase 5 verified
+- [2026-08-10] phase 5 reported
+- [2026-08-10] final report sent, awaiting acceptance (phase 5)
