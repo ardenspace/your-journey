@@ -8,7 +8,7 @@ status: approved
 Contracts: B1, B2
 
 - [x] Expo 스캐폴드 + jest 테스트 인프라(jest-expo, better-sqlite3, TypeScript strict) + `allowBackup=false`·`dataExtractionRules` 설정 — 계약 테스트가 돌 수 있는 최소 기반
-- [ ] B1·B2 계약을 실패하는 테스트로 고정(3-테이블 스키마와 `deleted_at` 배제 시맨틱, settings 값 형태와 손상 JSON 기본값 리셋, DB 인터페이스 적합성) → dates 유틸 + 스키마/migrate + expo-sqlite·better-sqlite3 어댑터로 통과
+- [x] B1·B2 계약을 실패하는 테스트로 고정(3-테이블 스키마와 `deleted_at` 배제 시맨틱, settings 값 형태와 손상 JSON 기본값 리셋, DB 인터페이스 적합성) → dates 유틸 + 스키마/migrate + expo-sqlite·better-sqlite3 어댑터로 통과
 - [ ] 도메인 타입 + diaryRepository — 생성·조회·목록(작성일 내림차순)·개수·수정·소프트 삭제(내용 소거 + `deleted_at`), 모든 집계는 `deleted_at IS NULL`만
 - [ ] settingsRepository — `question_mode`·`question_state`·`last_style` 라운드트립, 기본값 규칙
 - [ ] DbProvider + 테마 토큰(conventions.md) + 앱 셸(expo-router `_layout`, 화면 라우트)

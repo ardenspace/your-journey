@@ -4,6 +4,7 @@
 
 - step 1: Expo SDK 57 스캐폴드 (routes `app/`, jest-expo+better-sqlite3 인프라, tsconfig strict+jest types, `expo.android.allowBackup:false` — SDK 57은 build-properties가 아니라 app.json 필드) — `src/__tests__/smoke.test.ts`
 - ⚠️ 미해결(phase 1 내 처리 예정): `dataExtractionRules`는 expo config 미지원 — withAndroidManifest 커스텀 config plugin 필요 (B1)
+- step 2: B1·B2 계약 테스트(`src/db/__tests__/`) + `src/domain/dates.ts` + `src/db/database.ts`(DB 인터페이스+expo-sqlite 어댑터, expo-sqlite import는 이 파일만) + `src/db/schema.ts`(SCHEMA_STATEMENTS+migrate, 멱등) + `tests/support/testDb.ts`. 손상 JSON→기본값 리셋은 레포지토리 레이어 책임으로 문서화(step 4에서 구현)
 
 
 ## Design Tokens

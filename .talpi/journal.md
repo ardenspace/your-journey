@@ -4,3 +4,4 @@
 - [2026-08-10] spec approved (Arden, Telegram — 소프트 삭제 채택 포함)
 - [2026-08-10] plan approved, 4 phases (Arden, Telegram)
 - [2026-08-10] phase 1 started (base: 0b56431)
+- [2026-08-10] phase 1 contracts pinned
