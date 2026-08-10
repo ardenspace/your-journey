@@ -1,5 +1,11 @@
 # Conventions
 
+## Prior work this phase (Phase 1)
+
+- step 1: Expo SDK 57 스캐폴드 (routes `app/`, jest-expo+better-sqlite3 인프라, tsconfig strict+jest types, `expo.android.allowBackup:false` — SDK 57은 build-properties가 아니라 app.json 필드) — `src/__tests__/smoke.test.ts`
+- ⚠️ 미해결(phase 1 내 처리 예정): `dataExtractionRules`는 expo config 미지원 — withAndroidManifest 커스텀 config plugin 필요 (B1)
+
+
 ## Design Tokens
 
 - 색: paper `#FFFDF7`, ink `#3A3A3A`, accent `#C08A5D`, subtle `#8A8578`, card `#FFFFFF`
