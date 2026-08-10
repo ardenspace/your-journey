@@ -19,6 +19,7 @@ jest.mock("expo-notifications", () => ({
   scheduleNotificationAsync: jest.fn(),
   cancelScheduledNotificationAsync: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn(),
   AndroidImportance: { HIGH: 6 },
   SchedulableTriggerInputTypes: { DATE: "date" },
 }));
@@ -29,6 +30,7 @@ import { openInstant } from "../../domain/capsuleRules";
 import {
   addCapsuleNotificationTapListener,
   cancelCapsuleNotification,
+  getInitialCapsuleTapDiaryId,
   scheduleCapsuleNotification,
 } from "../capsuleNotifications";
 
@@ -51,6 +53,7 @@ beforeEach(() => {
     .mockReturnValue({ remove: jest.fn() } as unknown as ReturnType<
       typeof Notifications.addNotificationResponseReceivedListener
     >);
+  N.getLastNotificationResponseAsync.mockReset().mockResolvedValue(null);
   jest.replaceProperty(Platform, "OS", "android");
 });
 
@@ -229,6 +232,53 @@ describe("addCapsuleNotificationTapListener (B3: 탭 라우팅)", () => {
     handler(tapResponse("capsule"));
 
     expect(onTap).not.toHaveBeenCalled();
+  });
+});
+
+describe("getInitialCapsuleTapDiaryId (B3: 콜드 스타트 탭 라우팅)", () => {
+  test("last response is a valid capsule payload: returns its diaryId", async () => {
+    N.getLastNotificationResponseAsync.mockResolvedValue(
+      tapResponse({ diaryId: "diary-42", type: "capsule" })
+    );
+
+    await expect(getInitialCapsuleTapDiaryId()).resolves.toBe("diary-42");
+  });
+
+  test("no last response (앱이 알림 탭 없이 실행됨): returns null", async () => {
+    N.getLastNotificationResponseAsync.mockResolvedValue(null);
+
+    await expect(getInitialCapsuleTapDiaryId()).resolves.toBeNull();
+  });
+
+  test("non-capsule payload: returns null", async () => {
+    N.getLastNotificationResponseAsync.mockResolvedValue(
+      tapResponse({ diaryId: "diary-42", type: "reminder" })
+    );
+
+    await expect(getInitialCapsuleTapDiaryId()).resolves.toBeNull();
+  });
+
+  test("malformed payloads (missing/non-string diaryId, non-object data): returns null", async () => {
+    const malformed: unknown[] = [
+      { type: "capsule" },
+      { type: "capsule", diaryId: 42 },
+      { diaryId: "diary-42" },
+      null,
+      undefined,
+      "capsule",
+    ];
+    for (const data of malformed) {
+      N.getLastNotificationResponseAsync.mockResolvedValue(tapResponse(data));
+      await expect(getInitialCapsuleTapDiaryId()).resolves.toBeNull();
+    }
+  });
+
+  test("OS boundary rejection: returns null silently", async () => {
+    N.getLastNotificationResponseAsync.mockRejectedValue(
+      new Error("os boundary failure")
+    );
+
+    await expect(getInitialCapsuleTapDiaryId()).resolves.toBeNull();
   });
 });
 

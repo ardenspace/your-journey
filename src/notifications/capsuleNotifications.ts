@@ -94,6 +94,23 @@ export async function scheduleCapsuleNotification(
 }
 
 /**
+ * Extract the diaryId from a notification data payload, but only when it is
+ * a valid capsule payload (`{ type: 'capsule', diaryId: string }`). Anything
+ * else — foreign notifications, malformed payloads — yields `null`. Single
+ * source of the payload-validation rule for both tap paths (live + cold start).
+ */
+function capsuleDiaryIdFromPayload(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+  const payload = data as Record<string, unknown>;
+  if (payload.type !== "capsule" || typeof payload.diaryId !== "string") {
+    return null;
+  }
+  return payload.diaryId;
+}
+
+/**
  * Register a listener for capsule-notification taps (B3: 탭 → 열람 화면
  * 이동; 개봉은 화면 안의 버튼으로만). This is the only place screens hook
  * into notification responses — they never import expo-notifications.
@@ -107,18 +124,37 @@ export function addCapsuleNotificationTapListener(
 ): { remove(): void } {
   const subscription = Notifications.addNotificationResponseReceivedListener(
     (response) => {
-      const data: unknown = response.notification.request.content.data;
-      if (typeof data !== "object" || data === null) {
-        return;
+      const diaryId = capsuleDiaryIdFromPayload(
+        response.notification.request.content.data
+      );
+      if (diaryId !== null) {
+        onTap(diaryId);
       }
-      const payload = data as Record<string, unknown>;
-      if (payload.type !== "capsule" || typeof payload.diaryId !== "string") {
-        return;
-      }
-      onTap(payload.diaryId);
     }
   );
   return { remove: () => subscription.remove() };
+}
+
+/**
+ * Cold-start tap routing (B3): when the app was KILLED and a capsule
+ * notification tap launched it, the live listener above never sees that
+ * response — the OS keeps it as the "last notification response" instead.
+ * Call this once on startup to recover it.
+ *
+ * Returns the diaryId when the last response carries a valid capsule payload,
+ * `null` otherwise (no response, foreign notification, malformed payload).
+ * Errors degrade silently to `null` — startup must never break on this.
+ */
+export async function getInitialCapsuleTapDiaryId(): Promise<string | null> {
+  try {
+    const response = await Notifications.getLastNotificationResponseAsync();
+    if (response === null || response === undefined) {
+      return null;
+    }
+    return capsuleDiaryIdFromPayload(response.notification.request.content.data);
+  } catch {
+    return null;
+  }
 }
 
 /**
