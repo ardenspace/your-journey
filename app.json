@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.xfor.ps.project.yourjourney"
+      "package": "com.ardenspace.yourjourney"
     },
     "web": {
       "output": "static",
