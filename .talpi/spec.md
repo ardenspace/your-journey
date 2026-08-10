@@ -40,7 +40,7 @@ status: approved
 - 계정·인증 (Cognito, Phase 2)
 - 이미지 첨부 (S3, Phase 2)
 - Play Store 출시 준비 (Phase 3)
-- iOS (Apple 개발자 계정 비용 문제로 보류)
+- App Store 출시 준비 (Apple 개발자 계정 $99/년 — 결제·심사 준비는 출시 시점에. iOS 앱 자체는 v1 지원 범위)
 - 글꼴 선택·글자색 선택 UI — v1은 시스템 폰트·기본 글자색 고정 (스키마 컬럼은 기본값으로 채워 이후 확장 대비)
 
 ## Simplicity Zones
@@ -73,6 +73,8 @@ Phase 2 동기화가 이 데이터를 서버로 올려야 하므로 스키마는
 **개인 데이터 보호**: 일기 본문은 이 DB 밖으로 나가지 않는다 — v1에서 유일한 영속 저장소. 이 약속이 OS 레벨에서도 지켜지도록 **Android Auto Backup을 비활성화한다(`android:allowBackup=false`)** — 일기가 Google 클라우드로 자동 업로드되지 않는다. Android 12+의 기기 간 전송도 막도록 `dataExtractionRules`에서 동일하게 제외한다. (백업 부재의 대가는 Phase 2 동기화가 해소.)
 
 `question_state`·`last_style` JSON이 손상되어 파싱할 수 없으면 조용히 기본값으로 리셋한다(사용자에게 에러를 보이지 않는다).
+
+**iOS**: 같은 약속의 iOS 버전 — SQLite DB 파일(및 그 디렉터리)을 iCloud/기기 백업에서 제외한다(`NSURLIsExcludedFromBackupKey` 상당). 일기가 Apple 클라우드로도 나가지 않는다. 제외가 실제로 적용됐는지 검증 가능해야 한다.
 
 ### B2: DB 접근 인터페이스 (하드닝된 내부 계약)
 
@@ -129,7 +131,8 @@ UI·DB와 무관한 순수 함수로 분리하고 유닛 테스트로 고정하�
 - **스키마 형태**: B1의 3-테이블 스키마. 시각은 UTC ISO 8601 문자열, 달력일 판정은 로컬 타임존.
 - **프라이버시 모델 (v1)**: 일기는 기기 안에만, 평문 SQLite로 저장한다. 앱 잠금·DB 암호화 없음 — 기기 잠금(OS)을 신뢰 경계로 삼는다. 타임캡슐의 "본인도 못 본다"는 UI 레벨의 약속이다. Android Auto Backup은 비활성화(`allowBackup=false`).
 - **질문 id 체계**: `ch<장>-q<번호>` — 일기가 `question_id`로 참조하므로 배포 후 id는 영구 계약. 문구는 수정 가능, id는 불변.
-- **플랫폼**: Android 우선, 태블릿 레이아웃 처음부터 고려. iOS 보류. v1은 단일 기기 사용 기준.
+- **플랫폼**: Android + iOS 동시 지원 (2026-08-10 Arden 결정 — 구 "iOS 보류"를 해제, 어차피 양쪽 스토어 출시가 목표). 태블릿 레이아웃 처음부터 고려. v1은 단일 기기 사용 기준. 스토어 출시 준비는 양쪽 다 v1 범위 밖.
+- **iOS bundleIdentifier**: `com.ardenspace.yourjourney` — Android applicationId와 동일 (2026-08-10 Arden 확정).
 - **Phase 2 방향**: AWS 서버리스 (Lambda + API Gateway + DynamoDB + Cognito + S3), 무료 티어 범위 설계, 계정 생성 직후 billing alarm. 서버 저장 시 본문 암호화(E2E) 여부는 **미결** — Phase 2 스펙에서 결정한다. (v1 구현에는 등장하지 않지만 스키마·데이터 소유 결정의 배경.)
 - **Android applicationId**: `com.ardenspace.yourjourney` — Play Store 출시 시 영구 고정되는 값 (2026-08-10 Arden 확정, Phase 1 에스컬레이션 해소).
 - **언어**: v1은 한국어 단일 언어. 다국어(i18n)는 필요해지는 시점에 별도 결정 (Play Store 확장도 우선 한국어 사용자 대상).
