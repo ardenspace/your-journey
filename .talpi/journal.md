@@ -22,3 +22,4 @@
 - [2026-08-10] phase 4 verified
 - [2026-08-10] phase 4 reported
 - [2026-08-10] final report sent, awaiting acceptance
+- [2026-08-10] run done (accepted by Arden, Telegram)
