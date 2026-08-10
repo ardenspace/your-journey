@@ -72,9 +72,13 @@ export default function DiaryDetail() {
     if (capsule === null) {
       return;
     }
-    await markOpened(db, capsule.id, new Date().toISOString());
-    const reloaded = await getCapsuleForDiary(db, capsule.diaryId);
-    setCapsule(reloaded);
+    try {
+      await markOpened(db, capsule.id, new Date().toISOString());
+      const reloaded = await getCapsuleForDiary(db, capsule.diaryId);
+      setCapsule(reloaded);
+    } catch {
+      // 조용한 축소 — 개봉 실패 시 봉인 화면 그대로, 다시 누르면 된다.
+    }
   }, [db, capsule]);
 
   const confirmDelete = useCallback(() => {

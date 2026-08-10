@@ -40,11 +40,15 @@ export default function Index() {
         const count = await countDiaries(db);
         let question: Question | null = null;
         if (await isQuestionMode(db)) {
+          const previous = await getQuestionState(db);
           const state = resolveToday(
-            await getQuestionState(db),
+            previous,
             localDateString(new Date()),
+            QUESTION_BANK.length,
           );
-          await saveQuestionState(db, state);
+          if (state !== previous) {
+            await saveQuestionState(db, state);
+          }
           question = currentQuestion(QUESTION_BANK, state);
         }
         if (!cancelled) {

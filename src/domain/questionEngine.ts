@@ -35,18 +35,31 @@ const MAX_SHOWN_DAYS = 3;
  * Same-day re-resolve is a no-op. On a new day: if the current question was
  * answered or has been shown `MAX_SHOWN_DAYS` days, move to the next
  * question; otherwise keep it and count one more shown-day.
+ *
+ * `bankLength` bounds the cursor. An exhausted state (cursor >= bankLength)
+ * never advances — no card is shown, so no shown-days accrue — which keeps
+ * the cursor exactly at the bank's end. Questions appended later (B4: 장
+ * 추가는 배열 끝에) are then picked up from the first new one. Advancing
+ * past the last question lands on `shownDate: null / shownCount: 0` so a
+ * future first new question starts with a full fresh shown-day count.
  */
-export function resolveToday(state: QuestionState, today: string): QuestionState {
+export function resolveToday(
+  state: QuestionState,
+  today: string,
+  bankLength: number
+): QuestionState {
   if (state.shownDate === today) {
     return state;
   }
+  if (state.cursor >= bankLength) {
+    return state;
+  }
   if (state.answeredCurrent || state.shownCount >= MAX_SHOWN_DAYS) {
-    return {
-      cursor: state.cursor + 1,
-      shownDate: today,
-      shownCount: 1,
-      answeredCurrent: false,
-    };
+    const cursor = state.cursor + 1;
+    if (cursor >= bankLength) {
+      return { cursor, shownDate: null, shownCount: 0, answeredCurrent: false };
+    }
+    return { cursor, shownDate: today, shownCount: 1, answeredCurrent: false };
   }
   return {
     cursor: state.cursor,
