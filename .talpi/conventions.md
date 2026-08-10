@@ -2,6 +2,7 @@
 
 ## Prior work this phase (Phase 4)
 
+- step 3: 마무리 검증 — 152 tests/tsc clean + 실제 스모크 런(iOS 시뮬레이터+Expo Go+Maestro 2.8.0, 이 머신에 Android SDK 없음): 스모크 6단계 전부 VERIFIED + 봉인 플로우 보너스, 제품 버그 0. last_style 이어짐·같은 날 질문 카드 유지·봉인 카드 프라이버시 실기기 확인
 - step 2: `deleteDiaryFlow` 헬퍼(+테스트 4개) + 열람 화면 전 상태에 조용한 "지우기"(봉인 중 포함, 내용 미노출 확인 다이얼로그)
 - step 1: `app/edit/[id].tsx`(StylePicker·NotebookPage 재사용, 봉인 일기는 수정 경로에서도 내용 미노출 가드) + 열람 화면 "고치기" 버튼(일반 상태만) + `_layout.tsx` 라우트 등록
 

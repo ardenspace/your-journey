@@ -18,3 +18,4 @@
 - [2026-08-10] phase 3 reported
 - [2026-08-10] phase 4 started (base: 328b838)
 - [2026-08-10] phase 4 contracts: none
+- [2026-08-10] phase 4 smoke checklist: 6/6 VERIFIED + seal bonus (iOS sim + Expo Go + Maestro), product bugs 0
