@@ -1,27 +1,224 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
+import { newId, useDb } from "@/db/provider";
+import type { DiaryStyle } from "@/domain/types";
+import { createDiary } from "@/repositories/diaryRepository";
+import { getLastStyle, saveLastStyle } from "@/repositories/settingsRepository";
+import { StylePicker } from "@/ui/StylePicker";
 import { theme } from "@/ui/theme";
 
-/** 쓰기 화면 플레이스홀더 — 실제 쓰기 UI는 이후 스텝에서. */
+/**
+ * 쓰기 화면 (Requirement 1): 제목 선택 + 본문 필수, 꾸미기(StylePicker),
+ * "간직하기"로 저장. 빈 본문(공백·개행만)은 조용히 저장되지 않는다 —
+ * 버튼이 비활성 상태로 있을 뿐 어떤 에러도 띄우지 않는다.
+ * 마지막 꾸미기(last_style)가 기본값이며 저장이 완료된 때에만 갱신된다.
+ *
+ * 속지(무지/줄노트/모눈)는 선택·저장은 되지만 v1 쓰기 화면의 입력창
+ * 렌더링은 세 속지 모두 동일한 무지 표현이다(단순한 접근 — 시각 효과는
+ * 이후 다듬는다). questionId/questionText 파라미터는 Phase 2의 질문
+ * 카드가 넘겨준다 — 지금은 있으면 표시·연결만 한다.
+ */
 export default function Write() {
+  const db = useDb();
+  const router = useRouter();
+  const params = useLocalSearchParams<{
+    questionId?: string;
+    questionText?: string;
+  }>();
+  const questionId =
+    typeof params.questionId === "string" ? params.questionId : undefined;
+  const questionText =
+    typeof params.questionText === "string" ? params.questionText : undefined;
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [style, setStyle] = useState<DiaryStyle | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const lastStyle = await getLastStyle(db);
+      if (!cancelled) {
+        setStyle(lastStyle);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [db]);
+
+  // 마지막 꾸미기를 읽어 오기 전에는 조용한 빈 화면 (순간이라 거의 안 보인다).
+  if (style === null) {
+    return <View style={styles.screen} />;
+  }
+
+  const canSave = content.trim().length > 0 && !saving;
+
+  const handleSave = async () => {
+    if (!canSave) {
+      return;
+    }
+    setSaving(true);
+    setSaveFailed(false);
+    try {
+      const trimmedTitle = title.trim();
+      await createDiary(
+        db,
+        {
+          title: trimmedTitle.length > 0 ? trimmedTitle : undefined,
+          content,
+          questionId,
+          style,
+        },
+        { id: newId(), now: new Date().toISOString() },
+      );
+      await saveLastStyle(db, style);
+      router.back();
+    } catch {
+      // 저장 실패는 부드럽게 안내만 — 기술 용어·에러 코드 없음.
+      setSaving(false);
+      setSaveFailed(true);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.message}>곧 이곳에서 오늘을 쓰실 수 있어요.</Text>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          {questionText !== undefined && (
+            <View style={styles.questionCard}>
+              <Text style={styles.questionText}>{questionText}</Text>
+            </View>
+          )}
+
+          <TextInput
+            style={styles.titleInput}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="제목을 붙여 주셔도 좋아요"
+            placeholderTextColor={theme.colors.subtle}
+            maxLength={100}
+          />
+
+          <TextInput
+            style={[
+              styles.contentInput,
+              {
+                backgroundColor: style.backgroundColor,
+                fontSize: style.fontSize,
+                color: style.fontColor,
+              },
+            ]}
+            value={content}
+            onChangeText={setContent}
+            placeholder="마음 가는 대로 적어 보세요"
+            placeholderTextColor={theme.colors.subtle}
+            multiline
+            textAlignVertical="top"
+          />
+
+          <StylePicker style={style} onChange={setStyle} />
+
+          {saveFailed && (
+            <Text style={styles.saveFailedText}>
+              잠시 후 다시 한번 눌러 주세요
+            </Text>
+          )}
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="간직하기"
+            accessibilityState={{ disabled: !canSave }}
+            disabled={!canSave}
+            onPress={handleSave}
+            style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
+          >
+            <Text style={styles.saveButtonText}>간직하기</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: theme.colors.paper,
-    padding: 24,
   },
-  message: {
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  content: {
+    width: "100%",
+    maxWidth: theme.maxContentWidth,
+    alignSelf: "center",
+    gap: 20,
+  },
+  questionCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
+    padding: 16,
+  },
+  questionText: {
     fontSize: theme.fontSize.body,
+    color: theme.colors.ink,
+    lineHeight: 30,
+  },
+  titleInput: {
+    minHeight: theme.touchTarget,
+    fontSize: theme.fontSize.body,
+    color: theme.colors.ink,
+    backgroundColor: theme.colors.card,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  contentInput: {
+    minHeight: 240,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    lineHeight: 32,
+  },
+  saveFailedText: {
+    fontSize: theme.fontSize.small,
     color: theme.colors.subtle,
     textAlign: "center",
+  },
+  saveButton: {
+    minHeight: 64,
+    borderRadius: 16,
+    backgroundColor: theme.colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  saveButtonDisabled: {
+    opacity: 0.4,
+  },
+  saveButtonText: {
+    fontSize: theme.fontSize.title,
+    color: theme.colors.card,
+    fontWeight: "600",
   },
 });

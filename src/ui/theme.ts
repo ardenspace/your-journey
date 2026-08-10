@@ -31,3 +31,11 @@ export const DIARY_BACKGROUND_COLORS = [
 ] as const;
 
 export type DiaryBackgroundColor = (typeof DIARY_BACKGROUND_COLORS)[number];
+
+/**
+ * 일기 본문 글자 크기 3종: 작게 / 보통 / 크게 (Requirement 1).
+ * 본문은 18 이상 규칙과 함께 스타일 선택 UI가 사용한다.
+ */
+export const DIARY_FONT_SIZES = [18, 20, 24] as const;
+
+export type DiaryFontSize = (typeof DIARY_FONT_SIZES)[number];
