@@ -2,6 +2,7 @@
 
 ## Prior work this phase (Phase 2)
 
+- step 3: `JourneyPath`(숫자 금지 테스트 포함)·`QuestionCard`(+테스트 5개) + `app/index.tsx` 실홈 + write.tsx에 markAnswered 연결(현재 커서 질문일 때만, 실패는 조용히 무시 — 일기는 이미 저장됨)
 - step 2: `src/content/questions.ts`(1장 10문항 — 사람 소유 콘텐츠, 배포 후 id 불변) + questionEngine 로직 + `src/domain/capsuleRules.ts` + `src/domain/journeyProgress.ts` — 계약 4스위트 green (110 tests)
 - step 1: B4·B5 계약 테스트 4파일 (`src/content/__tests__/questions.test.ts`, `src/domain/__tests__/{questionEngine,capsuleRules,journeyProgress}.test.ts`) — 커밋 시점엔 의도적으로 실패 상태. 다음 구현자가 맞춰야 할 시그니처: `QUESTION_BANK: Question[]`(questions.ts) / `resolveToday(state, today)`·`currentQuestion(bank, state)`·`markAnswered(state)`(questionEngine) / `CapsulePreset`·`resolveOpenDate(sealedAt: Date, preset) → "YYYY-MM-DD"`·`openInstant(openDate) → Date(로컬 9시)`·`isValidCustomOpenDate(candidate, today)`·`isOpenable(openDate, openedAt, now)`(capsuleRules — open_date는 YYYY-MM-DD 달력일로 저장, 9시 인스턴트는 openInstant로 파생) / `MILESTONES`·`journeyProgress(count)`(journeyProgress)
 

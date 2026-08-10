@@ -11,10 +11,17 @@ import {
   View,
 } from "react-native";
 
+import { QUESTION_BANK } from "@/content/questions";
 import { newId, useDb } from "@/db/provider";
+import { currentQuestion, markAnswered } from "@/domain/questionEngine";
 import type { DiaryStyle } from "@/domain/types";
 import { createDiary } from "@/repositories/diaryRepository";
-import { getLastStyle, saveLastStyle } from "@/repositories/settingsRepository";
+import {
+  getLastStyle,
+  getQuestionState,
+  saveLastStyle,
+  saveQuestionState,
+} from "@/repositories/settingsRepository";
 import { NotebookPage } from "@/ui/NotebookPage";
 import { StylePicker } from "@/ui/StylePicker";
 import { theme } from "@/ui/theme";
@@ -88,6 +95,20 @@ export default function Write() {
         { id: newId(), now: new Date().toISOString() },
       );
       await saveLastStyle(db, style);
+      if (questionId !== undefined) {
+        // 질문에서 시작한 일기: 저장된 질문이 아직 현재 커서 질문일 때만
+        // answered로 마킹한다 — 쓰는 도중 자정이 지나 커서가 다음 질문으로
+        // 넘어갔다면 연결(question_id)만 유지하고 마킹하지 않는다 (Req 2).
+        // 일기는 이미 저장됐으므로 여기 실패는 조용히 넘어간다.
+        try {
+          const questionState = await getQuestionState(db);
+          if (currentQuestion(QUESTION_BANK, questionState)?.id === questionId) {
+            await saveQuestionState(db, markAnswered(questionState));
+          }
+        } catch {
+          // 조용한 축소 — 질문 진행 마킹 실패가 저장 경험을 방해하지 않는다.
+        }
+      }
       router.back();
     } catch {
       // 저장 실패는 부드럽게 안내만 — 기술 용어·에러 코드 없음.
