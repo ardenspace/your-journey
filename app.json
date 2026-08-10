@@ -36,6 +36,12 @@
         }
       ],
       "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "color": "#C08A5D"
+        }
+      ],
       "expo-build-properties",
       "./plugins/withNoDataExtraction"
     ],

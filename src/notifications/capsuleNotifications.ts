@@ -94,6 +94,34 @@ export async function scheduleCapsuleNotification(
 }
 
 /**
+ * Register a listener for capsule-notification taps (B3: 탭 → 열람 화면
+ * 이동; 개봉은 화면 안의 버튼으로만). This is the only place screens hook
+ * into notification responses — they never import expo-notifications.
+ *
+ * Only responses whose payload is `{ type: 'capsule', diaryId: string }`
+ * reach `onTap`; anything else (foreign notifications, malformed payloads)
+ * is silently ignored.
+ */
+export function addCapsuleNotificationTapListener(
+  onTap: (diaryId: string) => void
+): { remove(): void } {
+  const subscription = Notifications.addNotificationResponseReceivedListener(
+    (response) => {
+      const data: unknown = response.notification.request.content.data;
+      if (typeof data !== "object" || data === null) {
+        return;
+      }
+      const payload = data as Record<string, unknown>;
+      if (payload.type !== "capsule" || typeof payload.diaryId !== "string") {
+        return;
+      }
+      onTap(payload.diaryId);
+    }
+  );
+  return { remove: () => subscription.remove() };
+}
+
+/**
  * Cancel a previously scheduled capsule notification. `null` means no
  * notification was ever scheduled (permission was denied) — skip silently.
  * Cancellation errors are swallowed: deletion must never fail on this step.

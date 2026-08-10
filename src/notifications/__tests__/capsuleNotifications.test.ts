@@ -18,6 +18,7 @@ jest.mock("expo-notifications", () => ({
   requestPermissionsAsync: jest.fn(),
   scheduleNotificationAsync: jest.fn(),
   cancelScheduledNotificationAsync: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
   AndroidImportance: { HIGH: 6 },
   SchedulableTriggerInputTypes: { DATE: "date" },
 }));
@@ -26,6 +27,7 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { openInstant } from "../../domain/capsuleRules";
 import {
+  addCapsuleNotificationTapListener,
   cancelCapsuleNotification,
   scheduleCapsuleNotification,
 } from "../capsuleNotifications";
@@ -44,8 +46,20 @@ beforeEach(() => {
   N.scheduleNotificationAsync.mockReset();
   N.setNotificationChannelAsync.mockReset().mockResolvedValue(null);
   N.cancelScheduledNotificationAsync.mockReset().mockResolvedValue(undefined);
+  N.addNotificationResponseReceivedListener
+    .mockReset()
+    .mockReturnValue({ remove: jest.fn() } as unknown as ReturnType<
+      typeof Notifications.addNotificationResponseReceivedListener
+    >);
   jest.replaceProperty(Platform, "OS", "android");
 });
+
+/** Build a minimal NotificationResponse carrying the given data payload. */
+function tapResponse(data: unknown): Notifications.NotificationResponse {
+  return {
+    notification: { request: { content: { data } } },
+  } as Notifications.NotificationResponse;
+}
 
 describe("scheduleCapsuleNotification (B3: payload)", () => {
   test("granted permission: schedules the exact fixed payload at openInstant(openDate) on channel 'capsule' and returns the scheduler's id", async () => {
@@ -161,6 +175,60 @@ describe("cancelCapsuleNotification (B3: cancel)", () => {
   test("cancel errors are swallowed silently", async () => {
     N.cancelScheduledNotificationAsync.mockRejectedValue(new Error("gone"));
     await expect(cancelCapsuleNotification("notif-42")).resolves.toBeUndefined();
+  });
+});
+
+describe("addCapsuleNotificationTapListener (B3: 탭 라우팅)", () => {
+  test("registers a response listener and returns a subscription whose remove() unsubscribes", () => {
+    const inner = { remove: jest.fn() };
+    N.addNotificationResponseReceivedListener.mockReturnValue(
+      inner as unknown as ReturnType<
+        typeof Notifications.addNotificationResponseReceivedListener
+      >
+    );
+
+    const subscription = addCapsuleNotificationTapListener(jest.fn());
+
+    expect(N.addNotificationResponseReceivedListener).toHaveBeenCalledTimes(1);
+    expect(inner.remove).not.toHaveBeenCalled();
+    subscription.remove();
+    expect(inner.remove).toHaveBeenCalledTimes(1);
+  });
+
+  test("capsule payload with string diaryId: calls onTap with exactly that id", () => {
+    const onTap = jest.fn();
+    addCapsuleNotificationTapListener(onTap);
+    const handler = N.addNotificationResponseReceivedListener.mock.calls[0]![0];
+
+    handler(tapResponse({ diaryId: "diary-42", type: "capsule" }));
+
+    expect(onTap).toHaveBeenCalledTimes(1);
+    expect(onTap).toHaveBeenCalledWith("diary-42");
+  });
+
+  test("non-capsule payload: ignored", () => {
+    const onTap = jest.fn();
+    addCapsuleNotificationTapListener(onTap);
+    const handler = N.addNotificationResponseReceivedListener.mock.calls[0]![0];
+
+    handler(tapResponse({ diaryId: "diary-42", type: "reminder" }));
+    handler(tapResponse({ diaryId: "diary-42" }));
+
+    expect(onTap).not.toHaveBeenCalled();
+  });
+
+  test("malformed payloads (missing/non-string diaryId, non-object data): ignored", () => {
+    const onTap = jest.fn();
+    addCapsuleNotificationTapListener(onTap);
+    const handler = N.addNotificationResponseReceivedListener.mock.calls[0]![0];
+
+    handler(tapResponse({ type: "capsule" }));
+    handler(tapResponse({ type: "capsule", diaryId: 42 }));
+    handler(tapResponse(null));
+    handler(tapResponse(undefined));
+    handler(tapResponse("capsule"));
+
+    expect(onTap).not.toHaveBeenCalled();
   });
 });
 
