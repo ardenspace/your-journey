@@ -1,0 +1,38 @@
+# Conventions
+
+## Design Tokens
+
+- 색: paper `#FFFDF7`, ink `#3A3A3A`, accent `#C08A5D`, subtle `#8A8578`, card `#FFFFFF`
+- 일기 배경색 팔레트 4종: `#FFFDF7`(종이), `#FDF3E7`(살구), `#EFF5EF`(연둣빛), `#EEF2F7`(하늘빛)
+- 기본 스타일(첫 일기): 배경 `#FFFDF7`, 속지 줄노트(lined), 시스템 폰트, 글자 크기 20, 글자색 `#3A3A3A`
+- 글자 크기: body 20 / title 24 / small 16. **일기 본문은 18 이상**(보조 텍스트·캡션만 small 16 허용)
+- 터치 타겟 최소 48dp, 본문 컨테이너 maxWidth 720 중앙 정렬(태블릿 대응)
+- 토큰은 `src/ui/theme.ts` 한 곳에 두고 모든 화면이 거기서 가져다 쓴다
+
+## Shared Utilities
+
+빌드 중 새 유틸을 만들면 여기 등록한다.
+
+- `src/domain/dates.ts` — `localDateString(d: Date)`: 로컬 타임존 `YYYY-MM-DD`. "오늘" 판정은 반드시 이것으로
+- `src/domain/questionEngine.ts` — 질문 진행 순수 로직 (B5)
+- `src/domain/capsuleRules.ts` — 개봉일 계산·개봉 가능 판정 (B5)
+- `src/domain/journeyProgress.ts` — 기록 수 → 여정 진행도 (B5)
+- `src/db/database.ts` — `DB` 인터페이스 (B2). 레포지토리·도메인은 expo-sqlite를 직접 import하지 않는다
+- `tests/support/testDb.ts` — better-sqlite3 in-memory 테스트 어댑터
+
+## Layout & Naming
+
+- 화면은 `app/`(expo-router), 로직은 `src/` — `db/` `repositories/` `domain/` `content/` `ui/` `notifications/`
+- 도메인(`src/domain`)은 React도 DB도 import하지 않는 순수 함수. `new Date()`를 내부에서 호출하지 않고 항상 인자로 받는다
+- 날짜·시각: 시각(instant)은 UTC ISO 8601(`toISOString()`), 달력일 판정은 로컬 타임존. id는 UUID(expo-crypto)
+- 테스트는 `src/**/__tests__/*.test.ts(x)`, DB가 필요하면 testDb 어댑터 사용
+- TypeScript strict. 커밋은 conventional commits(`feat:` `test:` `chore:`), 플랜 스텝당 1 커밋
+
+## Failure Behavior
+
+- 사용자에게는 조용하고 다정하게 — 기술 용어·에러 코드·스택트레이스 노출 금지. 문구는 전부 한국어 부드러운 존댓말("오늘을 써 볼까요?"). 명령조·통계·잔소리 금지
+- 사용자 행동이 필요한 실패(저장 실패 등)만 안내: 예 "잠시 후 다시 한번 눌러 주세요"
+- 조용한 축소가 원칙: 알림 권한 거부 → 알림 없이 봉인 진행. 예약 알림 유실 → 목록에서 그대로 개봉 가능. 손상된 settings JSON → 기본값으로 조용히 리셋
+- 부분 실패 허용(트랜잭션 없음): 봉인 중 캡슐 쓰기 실패 → 일반 일기로 남음. 삭제는 알림 취소 → 캡슐 → 일기 순서
+- 치명적 실패는 DB 열기/마이그레이션 실패뿐 — 이때만 앱이 준비 화면에서 멈출 수 있다
+- **원칙 1이 최우선 실패 규칙**: 어떤 에러 메시지·알림·로그에도 일기 내용을 싣지 않는다

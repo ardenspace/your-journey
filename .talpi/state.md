@@ -1,4 +1,4 @@
-run_status: planning
-current_phase: 0
-phases_total: 0
+run_status: building
+current_phase: 1
+phases_total: 4
 updated: 2026-08-10
