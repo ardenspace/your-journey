@@ -1,16 +1,21 @@
 # Handoff
 
-갱신: 2026-08-10 — Phase 5(iOS 지원) 완료, **최종 승인 대기**.
+갱신: 2026-08-10 — **run 완료 (Phase 5까지 전부 승인됨)**.
 
-## 지금 어디인가
+## 상태
 
-- v1은 이미 한 번 승인됐고(run done, f4be01d), 이후 Arden 요청으로 스코프 수정(iOS 지원 추가 — 스펙 Ledger 기록) + Phase 5를 추가해 재개했다.
-- Phase 5 (iOS 지원, base f4be01d) 2스텝 모두 완료·커밋: iCloud 백업 제외 config plugin(`plugins/withIosNoBackup.js`) + iOS 설정·전체 QA (수정/삭제/봉인 삭제/토글/코어 — 전부 VERIFIED, 버그 0). Verifier CLEAN. 테스트 156개 green.
-- 최종 보고 + 스크린샷 4장 Telegram 전송, **Arden 승인 대기 중**. 저널 tail: `final report sent, awaiting acceptance (phase 5)`.
-- 승인 오면: state.md 전체 재작성(run_status: done, current_phase 6, phases_total 5) + 저널 `run done` + push. 거절/수정 요청 오면: `acceptance declined` 저널 → Phase 6 Acceptance fixes 추가 → 일반 페이즈 루프.
+- v1 로컬 MVP + iOS 지원(Phase 5)까지 Arden 최종 승인으로 종료. 저널 tail: `run done`.
+- 5 페이즈 완료, 테스트 156개 green, Android(매니페스트 검증)+iOS(시뮬레이터 실조작 QA) 모두 확인, origin/main push 완료.
+- 다음 세션: 이 run은 끝났다 — 다시 빌드하지 말 것. 새 작업은 새 talpi 사이클(talpispec)로.
 
-## 알아야 할 것
+## 다음 사이클 후보
 
-- 채널: Telegram chat_id 7656702539. Metro는 8085 포트만 (8080/8081/8000 점유). Android SDK 이 머신에 없음.
-- Maestro 2.8.0 (~/.maestro, PATH 추가 필요, JAVA_HOME=/opt/homebrew/opt/openjdk). iOS QA 플로우 재사용: scratchpad/ios-qa/flows/*.yaml (세션 임시 디렉터리라 소실 가능).
-- 다음 사이클 후보: App Store/Play 출시 준비, Phase 2 동기화(E2E 암호화 미결), 질문 2장 콘텐츠.
+- App Store / Play Store 출시 준비 (applicationId·bundleId 둘 다 com.ardenspace.yourjourney 확정)
+- Phase 2 동기화: AWS 서버리스 (E2E 암호화 여부 미결 — 스펙 Ledger 참조)
+- 질문 뱅크 2장(어린 시절) — 콘텐츠는 Arden 소유, id 규칙 ch2-qN
+- 실기 테스트: Android는 `npx expo run:android`(이 머신에 SDK 없음 — Arden 폰+Android Studio), iOS는 Xcode 무료 프로비저닝
+
+## 기록 위치
+
+- 결정: .talpi/spec.md Reversibility Ledger / 구현: conventions.md, plan.md, git log / 사건: journal.md
+- Maestro 2.8.0 (~/.maestro, JAVA_HOME=/opt/homebrew/opt/openjdk) — QA 자동화 재사용 가능
