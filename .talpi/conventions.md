@@ -1,11 +1,6 @@
 # Conventions
 
-## Prior work this phase (Phase 3)
-
-- step 4: 알림 탭 리스너(`addCapsuleNotificationTapListener` — DB 조회 후 없는 일기는 조용히 홈, expo-notifications plugin 등록). ⚠️ cold-start 탭(앱 종료 상태에서 알림 탭) 라우팅은 미보장 — `getLastNotificationResponseAsync` 경로 필요, Phase 4 마무리에서 처리
-- step 3: DiaryCard에 capsule/now props(봉인 시 제목·본문 완전 숨김) + list.tsx 캡슐 맵 + diary/[id].tsx 3-상태(봉인/개봉가능/일반) + app.json package를 com.ardenspace.yourjourney로 확정
-- step 2: `src/repositories/capsuleRepository.ts`(+테스트 10개, deleteCapsuleForDiary는 Phase 4용) + write.tsx 봉인 UI(프리셋 4 + react-native-calendars 캘린더, minDate 내일, 미선택 시 저장 비활성). 새 의존성: react-native-calendars(순수 JS)
-- step 1: B3 계약 테스트 11개 + `src/notifications/capsuleNotifications.ts` (jest.mock 기반 seam, 문구·data 최소성·권한 거부 null·채널 capsule/HIGH·취소 null-safe·포그라운드 배너 모두 고정, 126 tests green)
+## Prior work this phase (Phase 4)
 
 ## Design Tokens
 
