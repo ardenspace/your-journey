@@ -2,6 +2,8 @@
 
 ## Prior work this phase (Phase 5)
 
+- step 1: `plugins/withIosNoBackup.js`(+테스트 4개, `plugins/__tests__/`) — AppDelegate에 NSURLIsExcludedFromBackupKey 주입(<Documents>/SQLite, RN 시작 전, 매 런치). expo-file-system/sqlite엔 JS API 없음 확인. app.json에 플러그인 + ios.bundleIdentifier 등록됨. 156 tests green
+
 ## Design Tokens
 
 - 색: paper `#FFFDF7`, ink `#3A3A3A`, accent `#C08A5D`, subtle `#8A8578`, card `#FFFFFF`
@@ -38,6 +40,7 @@
 - `src/repositories/capsuleRepository.ts` — capsules 접근은 반드시 이 레포지토리 경유. 시각/id 주입
 - `src/repositories/deleteDiaryFlow.ts` — `deleteDiaryFlow(db, diaryId, now) → boolean`. 삭제는 반드시 이 흐름 경유(알림 취소→캡슐→일기 + 부분 실패 규칙). `false` = 일기 원상 유지, UI는 재시도 안내
 - `src/notifications/capsuleNotifications.ts` — expo-notifications 유일 import 지점 (B3). `scheduleCapsuleNotification(diaryId, openDate) → id|null` / `cancelCapsuleNotification(id|null)`. 화면·레포지토리는 expo-notifications 직접 import 금지
+- `plugins/withIosNoBackup.js` — iOS 백업 제외 (B1 iOS). 템플릿 변경 시 빌드에서 loud fail. 빌드 툴링 테스트는 `plugins/__tests__/`
 
 ## Layout & Naming
 

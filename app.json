@@ -8,7 +8,8 @@
     "scheme": "yourjourney",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.ardenspace.yourjourney"
     },
     "android": {
       "allowBackup": false,
@@ -43,7 +44,8 @@
         }
       ],
       "expo-build-properties",
-      "./plugins/withNoDataExtraction"
+      "./plugins/withNoDataExtraction",
+      "./plugins/withIosNoBackup"
     ],
     "experiments": {
       "typedRoutes": true,
