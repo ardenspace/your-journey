@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { DiaryStyle } from "../domain/types";
 import {
   DIARY_BACKGROUND_COLORS,
+  DIARY_FONT_SIZE_LABELS,
   DIARY_FONT_SIZES,
   theme,
   type DiaryBackgroundColor,
@@ -24,12 +25,6 @@ const NOTEBOOK_DESIGNS: ReadonlyArray<{
   { label: "줄노트", value: "lined" },
   { label: "모눈", value: "grid" },
 ];
-
-const FONT_SIZE_LABELS: Record<number, string> = {
-  18: "작게",
-  20: "보통",
-  24: "크게",
-};
 
 interface StylePickerProps {
   style: DiaryStyle;
@@ -108,7 +103,7 @@ export function StylePicker({ style, onChange }: StylePickerProps) {
                 <Text
                   style={[styles.chipText, selected && styles.chipTextSelected]}
                 >
-                  {FONT_SIZE_LABELS[size]}
+                  {DIARY_FONT_SIZE_LABELS[size]}
                 </Text>
               </Pressable>
             );

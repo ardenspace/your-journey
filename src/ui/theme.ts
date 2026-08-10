@@ -41,3 +41,13 @@ export type DiaryBackgroundColor = (typeof DIARY_BACKGROUND_COLORS)[number];
 export const DIARY_FONT_SIZES = [18, 20, 24] as const;
 
 export type DiaryFontSize = (typeof DIARY_FONT_SIZES)[number];
+
+/**
+ * 글자 크기별 부드러운 라벨 — DiaryFontSize에 타입으로 묶여 있어
+ * 토큰이 바뀌면 렌더링이 아니라 빌드가 깨진다.
+ */
+export const DIARY_FONT_SIZE_LABELS: Record<DiaryFontSize, string> = {
+  18: "작게",
+  20: "보통",
+  24: "크게",
+};
