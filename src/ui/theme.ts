@@ -1,0 +1,33 @@
+/**
+ * Design tokens (conventions.md). Every screen pulls colors/sizes from here —
+ * no hardcoded colors or font sizes in components.
+ */
+export const theme = {
+  colors: {
+    paper: "#FFFDF7",
+    ink: "#3A3A3A",
+    accent: "#C08A5D",
+    subtle: "#8A8578",
+    card: "#FFFFFF",
+  },
+  fontSize: {
+    body: 20,
+    title: 24,
+    small: 16,
+  },
+  touchTarget: 48,
+  maxContentWidth: 720,
+} as const;
+
+/**
+ * 일기 배경색 팔레트 4종: 종이 / 살구 / 연둣빛 / 하늘빛.
+ * 스타일 선택 UI와 일기 렌더링이 공유한다.
+ */
+export const DIARY_BACKGROUND_COLORS = [
+  "#FFFDF7",
+  "#FDF3E7",
+  "#EFF5EF",
+  "#EEF2F7",
+] as const;
+
+export type DiaryBackgroundColor = (typeof DIARY_BACKGROUND_COLORS)[number];

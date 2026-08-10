@@ -4,6 +4,7 @@
 
 - step 1: Expo SDK 57 스캐폴드 (routes `app/`, jest-expo+better-sqlite3 인프라, tsconfig strict+jest types, `expo.android.allowBackup:false` — SDK 57은 build-properties가 아니라 app.json 필드) — `src/__tests__/smoke.test.ts`
 - ⚠️ 미해결(phase 1 내 처리 예정): `dataExtractionRules`는 expo config 미지원 — withAndroidManifest 커스텀 config plugin 필요 (B1)
+- step 5: `src/ui/theme.ts` + `src/db/provider.tsx` + 앱 셸(`app/_layout.tsx` 테마 Stack, index/write/list/diary/[id]/settings 라우트 플레이스홀더). DB 실패 시 조용한 로딩 뷰(유일한 치명 실패)
 - step 4: `src/repositories/settingsRepository.ts`(+테스트 11개) + `src/domain/questionEngine.ts` 스텁(QuestionState+initialQuestionState만 — Phase 2 로직은 이걸 재사용)
 - step 3: `src/domain/types.ts` + `src/repositories/diaryRepository.ts`(+테스트 9개). updateDiary는 title에 null 허용(제목 지우기), softDelete는 updated_at도 갱신(동기화 대비), 빈 본문 검증은 쓰기 화면 책임
 - step 2: B1·B2 계약 테스트(`src/db/__tests__/`) + `src/domain/dates.ts` + `src/db/database.ts`(DB 인터페이스+expo-sqlite 어댑터, expo-sqlite import는 이 파일만) + `src/db/schema.ts`(SCHEMA_STATEMENTS+migrate, 멱등) + `tests/support/testDb.ts`. 손상 JSON→기본값 리셋은 레포지토리 레이어 책임으로 문서화(step 4에서 구현)
@@ -32,6 +33,9 @@
 - `src/repositories/diaryRepository.ts` — diaries CRUD + 소프트 삭제. 시각/id는 항상 인자로 주입. 빈 본문 검증은 저장 흐름(UI) 책임
 - `src/repositories/settingsRepository.ts` — settings 키 접근은 반드시 이 레포지토리 경유. 손상 JSON→기본값 조용한 리셋(B1)은 getter가 구현(read 시 self-heal write 없음)
 - `tests/support/testDb.ts` — better-sqlite3 in-memory 테스트 어댑터
+- `src/ui/theme.ts` — `theme` + `DIARY_BACKGROUND_COLORS`. 색·크기 하드코딩 금지, 전부 여기서
+- `src/db/provider.tsx` — `DbProvider` / `useDb()` / `newId()`. 화면은 expo-sqlite·expo-crypto 직접 import 금지
+- import 규칙: `app/` 파일은 `@/*` 별칭(→`src/*`), `src/` 내부는 상대 경로
 
 ## Layout & Naming
 
