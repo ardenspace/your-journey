@@ -2,6 +2,8 @@
 
 ## Prior work this phase (Phase 3)
 
+- step 1: B3 계약 테스트 11개 + `src/notifications/capsuleNotifications.ts` (jest.mock 기반 seam, 문구·data 최소성·권한 거부 null·채널 capsule/HIGH·취소 null-safe·포그라운드 배너 모두 고정, 126 tests green)
+
 ## Design Tokens
 
 - 색: paper `#FFFDF7`, ink `#3A3A3A`, accent `#C08A5D`, subtle `#8A8578`, card `#FFFFFF`
@@ -35,6 +37,7 @@
 - `src/ui/DiaryCard.tsx` — 목록 카드 (봉인 표시 확장은 Phase 3 스텝에서)
 - `formatKoreanDate(iso)` (dates.ts) — 표시용 한국어 날짜는 반드시 이것으로
 - `theme.colors.notebookLine` — 속지 줄 색 토큰
+- `src/notifications/capsuleNotifications.ts` — expo-notifications 유일 import 지점 (B3). `scheduleCapsuleNotification(diaryId, openDate) → id|null` / `cancelCapsuleNotification(id|null)`. 화면·레포지토리는 expo-notifications 직접 import 금지
 
 ## Layout & Naming
 

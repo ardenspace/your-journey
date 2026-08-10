@@ -12,3 +12,4 @@
 - [2026-08-10] phase 2 verified
 - [2026-08-10] phase 2 reported
 - [2026-08-10] phase 3 started (base: bd6ff7c)
+- [2026-08-10] phase 3 contracts pinned
