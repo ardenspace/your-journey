@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -21,11 +21,15 @@ import { theme } from "@/ui/theme";
  * - 봉인 중 & 개봉 가능: "열어보기" 버튼 — 개봉은 명시적 행위. 누르면
  *   markOpened 후 일반 열람으로 전환되고, 한 번 개봉하면 다시 봉인되지
  *   않는다(openedAt이 남아 영원히 일반 렌더).
- * - 캡슐 없음/개봉됨: 저장된 꾸미기 그대로 NotebookPage 렌더.
+ * - 캡슐 없음/개봉됨: 저장된 꾸미기 그대로 NotebookPage 렌더 + 조용한
+ *   "고치기" 진입점 (Requirement 8 — 일반·개봉된 일기만 수정 가능,
+ *   봉인 중에는 수정 진입점 자체가 없다). 수정 후 돌아오면
+ *   useFocusEffect가 다시 읽어 고친 내용이 바로 보인다.
  * 일기를 찾지 못하면 조용하고 다정한 빈 화면만 — 에러 코드 없음.
  */
 export default function DiaryDetail() {
   const db = useDb();
+  const router = useRouter();
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === "string" ? params.id : undefined;
 
@@ -112,7 +116,19 @@ export default function DiaryDetail() {
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.content}>
-        <Text style={styles.date}>{formatKoreanDate(diary.createdAt)}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.date}>{formatKoreanDate(diary.createdAt)}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="고치기"
+            onPress={() =>
+              router.push({ pathname: "/edit/[id]", params: { id: diary.id } })
+            }
+            style={styles.editButton}
+          >
+            <Text style={styles.editButtonText}>고치기</Text>
+          </Pressable>
+        </View>
         <NotebookPage
           design={style.notebookDesign}
           backgroundColor={style.backgroundColor}
@@ -161,9 +177,25 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     gap: 12,
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   date: {
     fontSize: theme.fontSize.small,
     color: theme.colors.subtle,
+  },
+  editButton: {
+    minHeight: theme.touchTarget,
+    minWidth: theme.touchTarget,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  editButtonText: {
+    fontSize: theme.fontSize.small,
+    color: theme.colors.accent,
   },
   page: {
     flexGrow: 1,

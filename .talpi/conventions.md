@@ -2,6 +2,8 @@
 
 ## Prior work this phase (Phase 4)
 
+- step 1: `app/edit/[id].tsx`(StylePicker·NotebookPage 재사용, 봉인 일기는 수정 경로에서도 내용 미노출 가드) + 열람 화면 "고치기" 버튼(일반 상태만) + `_layout.tsx` 라우트 등록
+
 ## Design Tokens
 
 - 색: paper `#FFFDF7`, ink `#3A3A3A`, accent `#C08A5D`, subtle `#8A8578`, card `#FFFFFF`

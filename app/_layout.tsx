@@ -91,6 +91,7 @@ export default function RootLayout() {
         <Stack.Screen name="write" options={{ title: "오늘을 쓰다" }} />
         <Stack.Screen name="list" options={{ title: "지난 여정" }} />
         <Stack.Screen name="diary/[id]" options={{ title: "" }} />
+        <Stack.Screen name="edit/[id]" options={{ title: "다시 쓰다" }} />
         <Stack.Screen name="settings" options={{ title: "설정" }} />
       </Stack>
     </DbProvider>
