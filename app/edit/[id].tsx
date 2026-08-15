@@ -1,24 +1,13 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
 
 import { useDb } from "@/db/provider";
 import type { DiaryStyle } from "@/domain/types";
 import { getCapsuleForDiary } from "@/repositories/capsuleRepository";
 import { getDiary, updateDiary } from "@/repositories/diaryRepository";
 import { saveLastStyle } from "@/repositories/settingsRepository";
-import { NotebookPage } from "@/ui/NotebookPage";
-import { StylePicker } from "@/ui/StylePicker";
-import { theme } from "@/ui/theme";
+import { DiaryEditor } from "@/ui/DiaryEditor";
+import { AppText, Button, Screen } from "@/ui/primitives";
 
 /**
  * 수정 화면 (Requirement 8): 저장된 일기의 제목·본문·꾸미기를 고친다.
@@ -79,23 +68,22 @@ export default function EditDiary() {
   }, [db, id]);
 
   if (state.kind === "loading") {
-    return <View style={styles.screen} />;
+    return <Screen />;
   }
 
   if (state.kind === "missing" || state.kind === "sealed" || style === null) {
     return (
-      <View style={[styles.screen, styles.centered]}>
-        <Text style={styles.missingText}>
+      <Screen centered padding="xxl">
+        <AppText color="subtle" center>
           {state.kind === "sealed"
             ? "봉인된 이야기는 열리는 날까지 고칠 수 없어요."
             : "이 이야기는 지금 찾을 수 없어요."}
-        </Text>
-      </View>
+        </AppText>
+      </Screen>
     );
   }
 
   const canSave = content.trim().length > 0 && !saving;
-  const contentLineHeight = Math.round(style.fontSize * 1.6);
 
   const handleSave = async () => {
     if (!canSave || id === undefined) {
@@ -125,133 +113,29 @@ export default function EditDiary() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          <TextInput
-            style={styles.titleInput}
-            value={title}
-            onChangeText={setTitle}
-            placeholder="제목을 붙여 주셔도 좋아요"
-            placeholderTextColor={theme.colors.subtle}
-            maxLength={100}
-          />
+    <Screen scroll keyboardAvoiding gap="xl">
+      <DiaryEditor
+        title={title}
+        onTitleChange={setTitle}
+        content={content}
+        onContentChange={setContent}
+        style={style}
+        onStyleChange={setStyle}
+      />
 
-          <NotebookPage
-            design={style.notebookDesign}
-            backgroundColor={style.backgroundColor}
-            lineSpacing={contentLineHeight}
-            style={styles.contentPage}
-          >
-            <TextInput
-              style={[
-                styles.contentInput,
-                {
-                  fontSize: style.fontSize,
-                  lineHeight: contentLineHeight,
-                  color: style.fontColor,
-                },
-              ]}
-              value={content}
-              onChangeText={setContent}
-              placeholder="마음 가는 대로 적어 보세요"
-              placeholderTextColor={theme.colors.subtle}
-              multiline
-              textAlignVertical="top"
-            />
-          </NotebookPage>
+      {saveFailed && (
+        <AppText variant="small" color="subtle" center>
+          잠시 후 다시 한번 눌러 주세요
+        </AppText>
+      )}
 
-          <StylePicker style={style} onChange={setStyle} />
-
-          {saveFailed && (
-            <Text style={styles.saveFailedText}>
-              잠시 후 다시 한번 눌러 주세요
-            </Text>
-          )}
-
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="고쳐 간직하기"
-            accessibilityState={{ disabled: !canSave }}
-            disabled={!canSave}
-            onPress={handleSave}
-            style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
-          >
-            <Text style={styles.saveButtonText}>고쳐 간직하기</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button
+        label="고쳐 간직하기"
+        accessibilityLabel="고쳐 간직하기"
+        accessibilityState={{ disabled: !canSave }}
+        disabled={!canSave}
+        onPress={handleSave}
+      />
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.paper,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  content: {
-    width: "100%",
-    maxWidth: theme.maxContentWidth,
-    alignSelf: "center",
-    gap: 20,
-  },
-  centered: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  missingText: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.subtle,
-    textAlign: "center",
-  },
-  titleInput: {
-    minHeight: theme.touchTarget,
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-    backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  contentPage: {
-    borderRadius: 12,
-  },
-  contentInput: {
-    minHeight: 240,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "transparent",
-  },
-  saveFailedText: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
-    textAlign: "center",
-  },
-  saveButton: {
-    minHeight: 64,
-    borderRadius: 16,
-    backgroundColor: theme.colors.accent,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButtonDisabled: {
-    opacity: 0.4,
-  },
-  saveButtonText: {
-    fontSize: theme.fontSize.title,
-    color: theme.colors.card,
-    fontWeight: "600",
-  },
-});

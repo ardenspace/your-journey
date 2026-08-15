@@ -1,12 +1,13 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import { useDb } from "@/db/provider";
 import {
   isQuestionMode,
   setQuestionMode,
 } from "@/repositories/settingsRepository";
+import { AppText, contentFrame, Screen } from "@/ui/primitives";
 import { theme } from "@/ui/theme";
 
 /**
@@ -42,18 +43,18 @@ export default function Settings() {
 
   // 첫 로드 전에는 조용한 빈 화면 (순간이라 거의 안 보인다).
   if (questionMode === null) {
-    return <View style={styles.screen} />;
+    return <Screen />;
   }
 
   return (
-    <View style={styles.screen}>
-      <View style={styles.content}>
+    <Screen padding="xxl">
+      <View style={contentFrame}>
         <View style={styles.row}>
           <View style={styles.rowText}>
-            <Text style={styles.label}>오늘의 질문</Text>
-            <Text style={styles.hint}>
+            <AppText>오늘의 질문</AppText>
+            <AppText variant="small" color="subtle">
               끄면 질문 없이 조용한 일기장이 돼요
-            </Text>
+            </AppText>
           </View>
           <Switch
             accessibilityLabel="오늘의 질문"
@@ -64,38 +65,20 @@ export default function Settings() {
           />
         </View>
       </View>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.paper,
-    padding: 24,
-  },
-  content: {
-    width: "100%",
-    maxWidth: theme.maxContentWidth,
-    alignSelf: "center",
-  },
   row: {
-    minHeight: 56,
+    minHeight: theme.controlHeight.large,
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    paddingVertical: 8,
+    gap: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
   },
   rowText: {
     flex: 1,
-    gap: 4,
-  },
-  label: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-  },
-  hint: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
+    gap: theme.spacing.xs,
   },
 });

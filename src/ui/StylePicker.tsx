@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import type { DiaryStyle } from "../domain/types";
+import { AppText, Chip } from "./primitives";
 import {
   DIARY_BACKGROUND_COLORS,
   DIARY_FONT_SIZE_LABELS,
@@ -40,7 +41,9 @@ export function StylePicker({ style, onChange }: StylePickerProps) {
   return (
     <View style={styles.container}>
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>배경</Text>
+        <AppText variant="small" color="subtle">
+          배경
+        </AppText>
         <View style={styles.row}>
           {DIARY_BACKGROUND_COLORS.map((color) => {
             const selected = style.backgroundColor === color;
@@ -64,50 +67,36 @@ export function StylePicker({ style, onChange }: StylePickerProps) {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>속지</Text>
+        <AppText variant="small" color="subtle">
+          속지
+        </AppText>
         <View style={styles.row}>
-          {NOTEBOOK_DESIGNS.map(({ label, value }) => {
-            const selected = style.notebookDesign === value;
-            return (
-              <Pressable
-                key={value}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => onChange({ ...style, notebookDesign: value })}
-                style={[styles.chip, selected && styles.chipSelected]}
-              >
-                <Text
-                  style={[styles.chipText, selected && styles.chipTextSelected]}
-                >
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {NOTEBOOK_DESIGNS.map(({ label, value }) => (
+            <Chip
+              key={value}
+              label={label}
+              selected={style.notebookDesign === value}
+              selection="outline"
+              onPress={() => onChange({ ...style, notebookDesign: value })}
+            />
+          ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>글자 크기</Text>
+        <AppText variant="small" color="subtle">
+          글자 크기
+        </AppText>
         <View style={styles.row}>
-          {DIARY_FONT_SIZES.map((size) => {
-            const selected = style.fontSize === size;
-            return (
-              <Pressable
-                key={size}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => onChange({ ...style, fontSize: size })}
-                style={[styles.chip, selected && styles.chipSelected]}
-              >
-                <Text
-                  style={[styles.chipText, selected && styles.chipTextSelected]}
-                >
-                  {DIARY_FONT_SIZE_LABELS[size]}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {DIARY_FONT_SIZES.map((size) => (
+            <Chip
+              key={size}
+              label={DIARY_FONT_SIZE_LABELS[size]}
+              selected={style.fontSize === size}
+              selection="outline"
+              onPress={() => onChange({ ...style, fontSize: size })}
+            />
+          ))}
         </View>
       </View>
     </View>
@@ -116,19 +105,15 @@ export function StylePicker({ style, onChange }: StylePickerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 16,
+    gap: theme.spacing.lg,
   },
   section: {
-    gap: 8,
-  },
-  sectionLabel: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
+    gap: theme.spacing.sm,
   },
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: theme.spacing.md,
   },
   swatch: {
     width: theme.touchTarget,
@@ -140,28 +125,5 @@ const styles = StyleSheet.create({
   swatchSelected: {
     borderWidth: 3,
     borderColor: theme.colors.accent,
-  },
-  chip: {
-    minHeight: theme.touchTarget,
-    minWidth: theme.touchTarget,
-    paddingHorizontal: 20,
-    borderRadius: theme.touchTarget / 2,
-    borderWidth: 1,
-    borderColor: theme.colors.subtle,
-    backgroundColor: theme.colors.card,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chipSelected: {
-    borderWidth: 2,
-    borderColor: theme.colors.accent,
-  },
-  chipText: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.ink,
-  },
-  chipTextSelected: {
-    color: theme.colors.accent,
-    fontWeight: "600",
   },
 });

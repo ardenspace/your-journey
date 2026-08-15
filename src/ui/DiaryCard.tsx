@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { isOpenable, openInstant } from "../domain/capsuleRules";
 import { formatKoreanDate } from "../domain/dates";
 import type { Capsule, Diary } from "../domain/types";
+import { AppText, Card } from "./primitives";
 import { theme } from "./theme";
 
 const PREVIEW_LENGTH = 40;
@@ -50,72 +51,56 @@ export function DiaryCard({
     )}에 열려요`;
 
     return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${formatKoreanDate(diary.createdAt)}의 봉인된 이야기`}
+      <Card
         onPress={onPress}
+        radius="md"
+        gap="sm"
+        accessibilityLabel={`${formatKoreanDate(diary.createdAt)}의 봉인된 이야기`}
         style={styles.card}
       >
-        <Text style={styles.date}>{formatKoreanDate(diary.createdAt)}</Text>
+        <AppText variant="small" color="subtle">
+          {formatKoreanDate(diary.createdAt)}
+        </AppText>
         {openable ? (
-          <Text style={styles.openableBadge}>열어볼 수 있어요</Text>
+          <AppText variant="small" color="accent" weight="semibold">
+            열어볼 수 있어요
+          </AppText>
         ) : (
-          <Text style={styles.sealedLine}>{openLine}</Text>
+          <AppText variant="small" color="subtle">
+            {openLine}
+          </AppText>
         )}
-      </Pressable>
+      </Card>
     );
   }
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${formatKoreanDate(diary.createdAt)}의 이야기`}
+    <Card
       onPress={onPress}
+      radius="md"
+      gap="sm"
+      accessibilityLabel={`${formatKoreanDate(diary.createdAt)}의 이야기`}
       style={styles.card}
     >
-      <Text style={styles.date}>{formatKoreanDate(diary.createdAt)}</Text>
+      <AppText variant="small" color="subtle">
+        {formatKoreanDate(diary.createdAt)}
+      </AppText>
       {diary.title !== null && diary.title.length > 0 && (
-        <Text style={styles.title} numberOfLines={1}>
+        <AppText variant="body" weight="semibold" numberOfLines={1}>
           {diary.title}
-        </Text>
+        </AppText>
       )}
-      <Text style={styles.preview} numberOfLines={2}>
+      <AppText variant="bodyRelaxed" numberOfLines={2}>
         {previewOf(diary.content)}
-      </Text>
-    </Pressable>
+      </AppText>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     minHeight: theme.touchTarget,
-    backgroundColor: theme.colors.card,
-    borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    gap: 6,
-  },
-  date: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
-  },
-  title: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-    fontWeight: "600",
-  },
-  preview: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-    lineHeight: 30,
-  },
-  sealedLine: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
-  },
-  openableBadge: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.accent,
-    fontWeight: "600",
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.lg,
   },
 });

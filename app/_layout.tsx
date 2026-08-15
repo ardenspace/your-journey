@@ -82,7 +82,7 @@ export default function RootLayout() {
         screenOptions={{
           headerStyle: { backgroundColor: theme.colors.paper },
           headerTintColor: theme.colors.ink,
-          headerTitleStyle: { fontSize: theme.fontSize.title },
+          headerTitleStyle: { fontSize: theme.typography.title.fontSize },
           headerShadowVisible: false,
           contentStyle: { backgroundColor: theme.colors.paper },
         }}

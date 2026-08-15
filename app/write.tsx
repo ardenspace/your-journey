@@ -1,17 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Switch, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 
 import { QUESTION_BANK } from "@/content/questions";
@@ -34,8 +23,8 @@ import {
   saveLastStyle,
   saveQuestionState,
 } from "@/repositories/settingsRepository";
-import { NotebookPage } from "@/ui/NotebookPage";
-import { StylePicker } from "@/ui/StylePicker";
+import { DiaryEditor } from "@/ui/DiaryEditor";
+import { AppText, Button, Card, Chip, Screen } from "@/ui/primitives";
 import { theme } from "@/ui/theme";
 
 /**
@@ -106,7 +95,7 @@ export default function Write() {
 
   // 마지막 꾸미기를 읽어 오기 전에는 조용한 빈 화면 (순간이라 거의 안 보인다).
   if (style === null) {
-    return <View style={styles.screen} />;
+    return <Screen />;
   }
 
   // 봉인이 켜져 있으면 개봉 시기가 정해져야 저장할 수 있다.
@@ -114,7 +103,6 @@ export default function Write() {
     !sealOn ||
     (sealPeriod !== null && (sealPeriod !== "custom" || customDate !== null));
   const canSave = content.trim().length > 0 && sealReady && !saving;
-  const contentLineHeight = Math.round(style.fontSize * 1.6);
 
   const today = localDateString(new Date());
   const tomorrowDate = new Date();
@@ -224,289 +212,137 @@ export default function Write() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          {questionText !== undefined && (
-            <View style={styles.questionCard}>
-              <Text style={styles.questionText}>{questionText}</Text>
-            </View>
-          )}
+    <Screen scroll keyboardAvoiding gap="xl">
+      {questionText !== undefined && (
+        <Card radius="sm" padding="lg">
+          <AppText variant="bodyRelaxed">{questionText}</AppText>
+        </Card>
+      )}
 
-          <TextInput
-            style={styles.titleInput}
-            value={title}
-            onChangeText={setTitle}
-            placeholder="제목을 붙여 주셔도 좋아요"
-            placeholderTextColor={theme.colors.subtle}
-            maxLength={100}
+      <DiaryEditor
+        title={title}
+        onTitleChange={setTitle}
+        content={content}
+        onContentChange={setContent}
+        style={style}
+        onStyleChange={setStyle}
+      />
+
+      <Card radius="sm" padding="lg" gap="lg">
+        <View style={styles.sealRow}>
+          <AppText>타임캡슐로 봉인하기</AppText>
+          <Switch
+            accessibilityLabel="타임캡슐로 봉인하기"
+            value={sealOn}
+            onValueChange={handleToggleSeal}
+            trackColor={{ true: theme.colors.accent }}
           />
+        </View>
 
-          <NotebookPage
-            design={style.notebookDesign}
-            backgroundColor={style.backgroundColor}
-            lineSpacing={contentLineHeight}
-            style={styles.contentPage}
-          >
-            <TextInput
-              style={[
-                styles.contentInput,
-                {
-                  fontSize: style.fontSize,
-                  lineHeight: contentLineHeight,
-                  color: style.fontColor,
-                },
-              ]}
-              value={content}
-              onChangeText={setContent}
-              placeholder="마음 가는 대로 적어 보세요"
-              placeholderTextColor={theme.colors.subtle}
-              multiline
-              textAlignVertical="top"
-            />
-          </NotebookPage>
-
-          <StylePicker style={style} onChange={setStyle} />
-
-          <View style={styles.sealSection}>
-            <View style={styles.sealRow}>
-              <Text style={styles.sealLabel}>타임캡슐로 봉인하기</Text>
-              <Switch
-                accessibilityLabel="타임캡슐로 봉인하기"
-                value={sealOn}
-                onValueChange={handleToggleSeal}
-                trackColor={{ true: theme.colors.accent }}
+        {sealOn && (
+          <>
+            <View style={styles.periodChips}>
+              {PRESET_OPTIONS.map(({ preset, label }) => (
+                <Chip
+                  key={preset}
+                  label={label}
+                  accessibilityLabel={label}
+                  selected={sealPeriod === preset}
+                  selection="fill"
+                  background="paper"
+                  onPress={() => setSealPeriod(preset)}
+                />
+              ))}
+              <Chip
+                label="날짜 고르기"
+                accessibilityLabel="날짜 고르기"
+                selected={sealPeriod === "custom"}
+                selection="fill"
+                background="paper"
+                onPress={() => setSealPeriod("custom")}
               />
             </View>
 
-            {sealOn && (
-              <>
-                <View style={styles.periodChips}>
-                  {PRESET_OPTIONS.map(({ preset, label }) => {
-                    const selected = sealPeriod === preset;
-                    return (
-                      <Pressable
-                        key={preset}
-                        accessibilityRole="button"
-                        accessibilityLabel={label}
-                        accessibilityState={{ selected }}
-                        onPress={() => setSealPeriod(preset)}
-                        style={[styles.chip, selected && styles.chipSelected]}
-                      >
-                        <Text
-                          style={[
-                            styles.chipText,
-                            selected && styles.chipTextSelected,
-                          ]}
-                        >
-                          {label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="날짜 고르기"
-                    accessibilityState={{ selected: sealPeriod === "custom" }}
-                    onPress={() => setSealPeriod("custom")}
-                    style={[
-                      styles.chip,
-                      sealPeriod === "custom" && styles.chipSelected,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        sealPeriod === "custom" && styles.chipTextSelected,
-                      ]}
+            {sealPeriod === "custom" && (
+              <View style={styles.calendarCard}>
+                <Calendar
+                  minDate={tomorrow}
+                  onDayPress={(day: { dateString: string }) =>
+                    handlePickCustomDate(day.dateString)
+                  }
+                  markedDates={
+                    customDate !== null
+                      ? {
+                          [customDate]: {
+                            selected: true,
+                            selectedColor: theme.colors.accent,
+                          },
+                        }
+                      : undefined
+                  }
+                  theme={{
+                    calendarBackground: theme.colors.card,
+                    dayTextColor: theme.colors.ink,
+                    monthTextColor: theme.colors.ink,
+                    textDisabledColor: theme.colors.subtle,
+                    arrowColor: theme.colors.accent,
+                    todayTextColor: theme.colors.accent,
+                    selectedDayBackgroundColor: theme.colors.accent,
+                    selectedDayTextColor: theme.colors.card,
+                  }}
+                />
+                {customDate !== null &&
+                  isValidCustomOpenDate(customDate, today) && (
+                    <AppText
+                      variant="small"
+                      color="accent"
+                      center
+                      style={styles.openDateText}
                     >
-                      날짜 고르기
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {sealPeriod === "custom" && (
-                  <View style={styles.calendarCard}>
-                    <Calendar
-                      minDate={tomorrow}
-                      onDayPress={(day: { dateString: string }) =>
-                        handlePickCustomDate(day.dateString)
-                      }
-                      markedDates={
-                        customDate !== null
-                          ? {
-                              [customDate]: {
-                                selected: true,
-                                selectedColor: theme.colors.accent,
-                              },
-                            }
-                          : undefined
-                      }
-                      theme={{
-                        calendarBackground: theme.colors.card,
-                        dayTextColor: theme.colors.ink,
-                        monthTextColor: theme.colors.ink,
-                        textDisabledColor: theme.colors.subtle,
-                        arrowColor: theme.colors.accent,
-                        todayTextColor: theme.colors.accent,
-                        selectedDayBackgroundColor: theme.colors.accent,
-                        selectedDayTextColor: theme.colors.card,
-                      }}
-                    />
-                    {customDate !== null &&
-                      isValidCustomOpenDate(customDate, today) && (
-                        <Text style={styles.openDateText}>
-                          {openDateLabel(customDate)}
-                        </Text>
-                      )}
-                  </View>
-                )}
-              </>
+                      {openDateLabel(customDate)}
+                    </AppText>
+                  )}
+              </View>
             )}
-          </View>
+          </>
+        )}
+      </Card>
 
-          {saveFailed && (
-            <Text style={styles.saveFailedText}>
-              잠시 후 다시 한번 눌러 주세요
-            </Text>
-          )}
+      {saveFailed && (
+        <AppText variant="small" color="subtle" center>
+          잠시 후 다시 한번 눌러 주세요
+        </AppText>
+      )}
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="간직하기"
-            accessibilityState={{ disabled: !canSave }}
-            disabled={!canSave}
-            onPress={handleSave}
-            style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
-          >
-            <Text style={styles.saveButtonText}>간직하기</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button
+        label="간직하기"
+        accessibilityLabel="간직하기"
+        accessibilityState={{ disabled: !canSave }}
+        disabled={!canSave}
+        onPress={handleSave}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.paper,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  content: {
-    width: "100%",
-    maxWidth: theme.maxContentWidth,
-    alignSelf: "center",
-    gap: 20,
-  },
-  questionCard: {
-    backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    padding: 16,
-  },
-  questionText: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-    lineHeight: 30,
-  },
-  titleInput: {
-    minHeight: theme.touchTarget,
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-    backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  contentPage: {
-    borderRadius: 12,
-  },
-  contentInput: {
-    minHeight: 240,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "transparent",
-  },
-  sealSection: {
-    backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    padding: 16,
-    gap: 16,
-  },
   sealRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: theme.touchTarget,
   },
-  sealLabel: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
-  },
   periodChips: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-  },
-  chip: {
-    minHeight: theme.touchTarget,
-    justifyContent: "center",
-    paddingHorizontal: 18,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: theme.colors.subtle,
-    backgroundColor: theme.colors.paper,
-  },
-  chipSelected: {
-    borderColor: theme.colors.accent,
-    backgroundColor: theme.colors.accent,
-  },
-  chipText: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.ink,
-  },
-  chipTextSelected: {
-    color: theme.colors.card,
-    fontWeight: "600",
+    gap: theme.spacing.md,
   },
   calendarCard: {
-    borderRadius: 12,
+    borderRadius: theme.radius.sm,
     overflow: "hidden",
-    gap: 8,
+    gap: theme.spacing.sm,
   },
   openDateText: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.accent,
-    textAlign: "center",
-    paddingBottom: 8,
-  },
-  saveFailedText: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
-    textAlign: "center",
-  },
-  saveButton: {
-    minHeight: 64,
-    borderRadius: 16,
-    backgroundColor: theme.colors.accent,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButtonDisabled: {
-    opacity: 0.4,
-  },
-  saveButtonText: {
-    fontSize: theme.fontSize.title,
-    color: theme.colors.card,
-    fontWeight: "600",
+    paddingBottom: theme.spacing.sm,
   },
 });

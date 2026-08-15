@@ -1,6 +1,6 @@
-import { Link, useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { QUESTION_BANK } from "@/content/questions";
 import { useDb } from "@/db/provider";
@@ -14,6 +14,7 @@ import {
   saveQuestionState,
 } from "@/repositories/settingsRepository";
 import { JourneyPath } from "@/ui/JourneyPath";
+import { Button, Screen } from "@/ui/primitives";
 import { QuestionCard } from "@/ui/QuestionCard";
 import { theme } from "@/ui/theme";
 
@@ -63,102 +64,52 @@ export default function Index() {
 
   // 첫 로드 전에는 조용한 빈 화면 (순간이라 거의 안 보인다).
   if (data === null) {
-    return <View style={styles.screen} />;
+    return <Screen />;
   }
 
   const { count, question } = data;
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          <JourneyPath count={count} />
+    <Screen scroll verticalCenter padding="xxl" gap="xxxl">
+      <JourneyPath count={count} />
 
-          {question !== null && (
-            <QuestionCard
-              question={question}
-              onWrite={() =>
-                router.push({
-                  pathname: "/write",
-                  params: {
-                    questionId: question.id,
-                    questionText: question.text,
-                  },
-                })
-              }
-            />
-          )}
+      {question !== null && (
+        <QuestionCard
+          question={question}
+          onWrite={() =>
+            router.push({
+              pathname: "/write",
+              params: {
+                questionId: question.id,
+                questionText: question.text,
+              },
+            })
+          }
+        />
+      )}
 
-          <Link href="/write" asChild>
-            <Pressable accessibilityRole="button" style={styles.writeButton}>
-              <Text style={styles.writeButtonLabel}>오늘을 쓰다</Text>
-            </Pressable>
-          </Link>
+      <Button label="오늘을 쓰다" onPress={() => router.push("/write")} />
 
-          <View style={styles.links}>
-            <Link href="/list" asChild>
-              <Pressable accessibilityRole="button" style={styles.linkButton}>
-                <Text style={styles.linkLabel}>지난 여정</Text>
-              </Pressable>
-            </Link>
-            <Link href="/settings" asChild>
-              <Pressable accessibilityRole="button" style={styles.linkButton}>
-                <Text style={styles.linkLabel}>설정</Text>
-              </Pressable>
-            </Link>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+      <View style={styles.links}>
+        <Button
+          label="지난 여정"
+          variant="pillOutline"
+          onPress={() => router.push("/list")}
+        />
+        <Button
+          label="설정"
+          variant="pillOutline"
+          onPress={() => router.push("/settings")}
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.paper,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 24,
-    paddingBottom: 40,
-    justifyContent: "center",
-  },
-  content: {
-    width: "100%",
-    maxWidth: theme.maxContentWidth,
-    alignSelf: "center",
-    gap: 32,
-  },
-  writeButton: {
-    minHeight: 64,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.accent,
-  },
-  writeButtonLabel: {
-    fontSize: theme.fontSize.title,
-    color: theme.colors.card,
-    fontWeight: "600",
-  },
   links: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 16,
-  },
-  linkButton: {
-    minHeight: theme.touchTarget,
-    paddingHorizontal: 24,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: theme.colors.subtle,
-    backgroundColor: theme.colors.card,
-  },
-  linkLabel: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.ink,
+    gap: theme.spacing.lg,
   },
 });

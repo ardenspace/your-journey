@@ -1,12 +1,13 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 
 import { useDb } from "@/db/provider";
 import type { Capsule, Diary } from "@/domain/types";
 import { listCapsules } from "@/repositories/capsuleRepository";
 import { listDiaries } from "@/repositories/diaryRepository";
 import { DiaryCard } from "@/ui/DiaryCard";
+import { AppText, contentFrame, Screen } from "@/ui/primitives";
 import { theme } from "@/ui/theme";
 
 /**
@@ -49,23 +50,25 @@ export default function List() {
 
   // 첫 로드 전에는 조용한 빈 화면 (순간이라 거의 안 보인다).
   if (diaries === null) {
-    return <View style={styles.screen} />;
+    return <Screen />;
   }
 
   if (diaries.length === 0) {
     return (
-      <View style={[styles.screen, styles.emptyContainer]}>
-        <Text style={styles.emptyText}>아직 적힌 이야기가 없어요</Text>
-      </View>
+      <Screen centered padding="xxl">
+        <AppText color="subtle" center>
+          아직 적힌 이야기가 없어요
+        </AppText>
+      </Screen>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen>
       <FlatList
         data={diaries}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[contentFrame, styles.listContent]}
         renderItem={({ item }) => (
           <DiaryCard
             diary={item}
@@ -75,30 +78,13 @@ export default function List() {
           />
         )}
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.paper,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  emptyText: {
-    fontSize: theme.fontSize.body,
-    color: theme.colors.subtle,
-    textAlign: "center",
-  },
   listContent: {
-    width: "100%",
-    maxWidth: theme.maxContentWidth,
-    alignSelf: "center",
-    padding: 20,
-    gap: 12,
+    padding: theme.spacing.xl,
+    gap: theme.spacing.md,
   },
 });

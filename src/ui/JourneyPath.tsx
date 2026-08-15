@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { journeyProgress, MILESTONES } from "../domain/journeyProgress";
+import { AppText } from "./primitives";
 import { theme } from "./theme";
 
 /**
@@ -35,11 +36,11 @@ export function JourneyPath({ count }: { count: number }) {
           </View>
         ))}
       </View>
-      <Text style={styles.caption}>
+      <AppText variant="small" color="subtle" center>
         {count > 0
           ? "여기까지 걸어오셨어요"
           : "오늘, 첫 걸음을 시작해 보세요"}
-      </Text>
+      </AppText>
     </View>
   );
 }
@@ -57,7 +58,7 @@ function Segment({ fill }: { fill: number }) {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    gap: 16,
+    gap: theme.spacing.lg,
   },
   path: {
     flexDirection: "row",
@@ -94,10 +95,5 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 2,
     backgroundColor: theme.colors.accent,
-  },
-  caption: {
-    fontSize: theme.fontSize.small,
-    color: theme.colors.subtle,
-    textAlign: "center",
   },
 });

@@ -14,6 +14,28 @@
 - 터치 타겟 최소 48dp, 본문 컨테이너 maxWidth 720 중앙 정렬(태블릿 대응)
 - 토큰은 `src/ui/theme.ts` 한 곳에 두고 모든 화면이 거기서 가져다 쓴다
 
+## Design System (2026-08-15 기반 공사)
+
+리디자인을 한 곳에서 하기 위한 규약 — **화면 코드에 생값 금지**:
+
+- 색·글자크기·행간·굵기·스페이싱·radius는 전부 `theme.ts` 토큰만 쓴다
+  (`theme.spacing.*` / `theme.radius.*` / `theme.typography.*` /
+  `theme.fontWeight.*` / `theme.controlHeight.*`). 새 값이 필요하면 토큰을
+  추가하지, 화면에 숫자를 박지 않는다
+- 프리미티브 `src/ui/primitives/` (배럴 import: `@/ui/primitives`):
+  - `Screen` — 화면 껍데기 (종이 배경 + scroll/keyboardAvoiding/센터링 +
+    maxWidth 프레임). `contentFrame`은 FlatList contentContainerStyle용
+  - `AppText` — 모든 UI 텍스트 (variant/color/weight/center). 예외는 일기
+    본문·제목처럼 사용자가 고른 DiaryStyle로 그리는 텍스트뿐
+  - `Button` — variant: primary(큰 주 행동) / pill·pill large(accent 알약) /
+    pillOutline(조용한 이동) / quiet(텍스트 버튼, textColor로 지우기 톤)
+  - `Card` — 흰 카드 표면. onPress 주면 Pressable 카드
+  - `Chip` — 선택 알약. selection: fill(봉인 기간) / outline(꾸미기)
+- `src/ui/DiaryEditor.tsx` — 쓰기·수정 공유 입력부(제목 + NotebookPage 본문 +
+  StylePicker). 두 화면은 이 아래에 저장 UI만 얹는다
+- 리디자인 절차: 팔레트·타이포·모양은 theme.ts, 컴포넌트 생김새는 primitives
+  내부만 고치면 전 화면에 일괄 반영된다. 화면 파일에는 레이아웃만 남긴다
+
 ## Shared Utilities
 
 빌드 중 새 유틸을 만들면 여기 등록한다.
