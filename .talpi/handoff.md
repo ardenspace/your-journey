@@ -12,6 +12,7 @@
 
 - App Store / Play Store 출시 준비 (applicationId·bundleId 둘 다 com.ardenspace.yourjourney 확정)
 - Phase 2 동기화: AWS 서버리스 (E2E 암호화 여부 미결 — 스펙 Ledger 참조)
+- 스키마 제약 강화 (2026-08-16 코드 리뷰 지적): `capsules.diary_id`에 UNIQUE 제약 — "일기당 캡슐 최대 1개" 불변식이 현재 UI 흐름에만 있음(getCapsuleForDiary가 전제). `created_at` 등 nullable 컬럼 NOT NULL 조이기(톰스톤용 title NULL은 의도된 것이라 제외). 스키마는 Phase 2 동기화의 경계이므로 동기화 스펙 전에 처리 — 기존 설치 DB가 있으므로 CREATE TABLE IF NOT EXISTS만으로는 부족, 마이그레이션 필요
 - 질문 뱅크 2장(어린 시절) — 콘텐츠는 Arden 소유, id 규칙 ch2-qN
 - 실기 테스트: Android는 `npx expo run:android`(이 머신에 SDK 없음 — Arden 폰+Android Studio), iOS는 Xcode 무료 프로비저닝
 
