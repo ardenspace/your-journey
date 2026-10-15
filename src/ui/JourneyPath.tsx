@@ -4,6 +4,9 @@ import { journeyProgress, MILESTONES } from "../domain/journeyProgress";
 import { AppText } from "./primitives";
 import { theme } from "./theme";
 
+const DOT_SIZE = 12;
+const SEGMENT_HEIGHT = 3;
+
 /**
  * 여정 경로 (Requirement 4): 기록이 쌓일수록 이어지는 경로 메타포.
  * 마일스톤마다 점 하나 — 도달한 점은 accent, 다음 구간은 진행도만큼 채워진다.
@@ -72,9 +75,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: DOT_SIZE,
+    height: DOT_SIZE,
+    borderRadius: DOT_SIZE / 2,
     backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: theme.colors.subtle,
@@ -86,14 +89,14 @@ const styles = StyleSheet.create({
   segment: {
     flexGrow: 1,
     flexShrink: 1,
-    height: 3,
-    borderRadius: 2,
+    height: SEGMENT_HEIGHT,
+    borderRadius: SEGMENT_HEIGHT / 2,
     backgroundColor: theme.colors.notebookLine,
     overflow: "hidden",
   },
   segmentFill: {
     height: "100%",
-    borderRadius: 2,
+    borderRadius: SEGMENT_HEIGHT / 2,
     backgroundColor: theme.colors.accent,
   },
 });
