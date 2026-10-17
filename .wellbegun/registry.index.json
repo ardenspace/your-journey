@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "key": "db.schema",
+      "status": "active",
+      "location": "src/db/schema.ts; src/db/__tests__/schema.test.ts",
+      "contract": "B1 (.talpi/spec.md) plus spec.md 'B1 제약 델타'",
+      "constraints": "Final schema defined once; tests pin NOT NULL/UNIQUE/nullable columns.",
+      "decisions": [
+        "schema.shape",
+        "schema.delete-semantics",
+        "schema.constraints",
+        "schema.migration",
+        "schema.legacy-repair"
+      ]
+    },
+    {
+      "key": "db.interface",
+      "status": "active",
+      "location": "src/db/database.ts; tests/support/testDb.ts; src/db/__tests__/database.contract.test.ts",
+      "contract": "B2 DB interface run/all/get, unchanged",
+      "constraints": "expo-sqlite imported only in src/db/database.ts.",
+      "decisions": [
+        "db.interface-transaction"
+      ]
+    },
+    {
+      "key": "ui",
+      "status": "N/A"
+    }
+  ]
+}

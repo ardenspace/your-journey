@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "active": [
+    {
+      "key": "schema.shape",
+      "id": "dec-0002"
+    },
+    {
+      "key": "schema.delete-semantics",
+      "id": "dec-0003"
+    },
+    {
+      "key": "schema.constraints",
+      "id": "dec-0005"
+    },
+    {
+      "key": "schema.migration",
+      "id": "dec-0006"
+    },
+    {
+      "key": "schema.legacy-repair",
+      "id": "dec-0007"
+    },
+    {
+      "key": "db.interface-transaction",
+      "id": "dec-0008"
+    }
+  ],
+  "records": [
+    {
+      "key": "schema.shape",
+      "id": "dec-0002",
+      "grade": "L",
+      "status": "approved",
+      "choice": "B1 3-table schema (diaries, capsules, settings); UTC ISO 8601 instants, local-timezone calendar days, UUID ids",
+      "scope": "src/db",
+      "constraints": "Phase 2 sync boundary. capsules.notification_id is a device-local handle excluded from sync.",
+      "reason": "Carried from .talpi/spec.md B1 / Ledger.",
+      "source": null,
+      "required_sections": {}
+    },
+    {
+      "key": "schema.delete-semantics",
+      "id": "dec-0003",
+      "grade": "L",
+      "status": "approved",
+      "choice": "Soft delete (tombstone): blank title/content immediately and set deleted_at",
+      "scope": "diaries",
+      "constraints": "All queries and counts filter deleted_at IS NULL. diaries.title stays nullable for tombstones.",
+      "reason": "Carried from .talpi/spec.md Ledger (sync must propagate deletes).",
+      "source": null,
+      "required_sections": {}
+    },
+    {
+      "key": "schema.constraints",
+      "id": "dec-0005",
+      "grade": "L",
+      "status": "approved",
+      "choice": "NOT NULL on diaries.{background_color,notebook_design,font_family,font_size,font_color,created_at,updated_at}, capsules.{diary_id,open_date,created_at}, settings.value; UNIQUE capsules.diary_id",
+      "scope": "src/db/schema.ts",
+      "constraints": "Nullable stays: diaries.title, question_id, deleted_at; capsules.opened_at, notification_id. UNIQUE spans tombstoned diaries too. Keep idx_diaries_created_at. No CHECK constraints this cycle.",
+      "reason": "Schema is the Phase 2 sync boundary; enforce invariants in the DB, not only in UI flow. Approved by Arden 2026-10-17.",
+      "source": null,
+      "required_sections": {}
+    },
+    {
+      "key": "schema.migration",
+      "id": "dec-0006",
+      "grade": "L",
+      "status": "approved",
+      "choice": "PRAGMA user_version ordered migrations; constraint changes via SQLite 12-step table rebuild, one transaction per step",
+      "scope": "src/db",
+      "constraints": "user_version 0 = talpi v1 install or empty DB; both reach the final schema through the same path, final schema defined in one place. foreign_keys OFF outside the transaction, PRAGMA foreign_key_check empty before COMMIT, restore foreign_keys after. Failure = ROLLBACK, original DB untouched. migrate() runs every start and is a no-op at latest version. Supersedes dec-0004.",
+      "reason": "SQLite lacks ALTER COLUMN; installed DBs need a reliable version marker. Approved by Arden 2026-10-17.",
+      "source": null,
+      "required_sections": {}
+    },
+    {
+      "key": "schema.legacy-repair",
+      "id": "dec-0007",
+      "grade": "L",
+      "status": "approved",
+      "choice": "Repair violating rows deterministically and let the migration succeed",
+      "scope": "src/db migration",
+      "constraints": "Never delete diaries rows or diary content. diaries style NULL -> Conventions default style (#FFFDF7, lined, system, 20, #3A3A3A); created_at NULL -> updated_at else migration time; updated_at NULL -> created_at. Duplicate capsules per diary_id -> keep earliest created_at (tie: lowest id), do not cancel notifications of dropped rows. Capsule with NULL/dangling diary_id or NULL open_date -> delete row. capsules.created_at NULL -> migration time. settings.value NULL -> delete row.",
+      "reason": "Aborting would leave the app stuck on the loading view. Approved by Arden 2026-10-17.",
+      "source": null,
+      "required_sections": {}
+    },
+    {
+      "key": "db.interface-transaction",
+      "id": "dec-0008",
+      "grade": "M",
+      "status": "approved",
+      "choice": "Keep B2 DB interface unchanged; migration uses run('BEGIN')/COMMIT/ROLLBACK",
+      "scope": "src/db",
+      "constraints": "Migration runs before DbProvider exposes the DB, so no interleaving. No transactions in normal app paths (Simplicity Zones).",
+      "reason": "Avoid changing a hardened contract with two adapters.",
+      "source": null,
+      "required_sections": {}
+    }
+  ]
+}
